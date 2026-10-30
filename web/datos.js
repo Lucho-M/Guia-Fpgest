@@ -27,12 +27,13 @@ window.GUIA_FPGEST = {
   fuente: "Implementación del ERP GEST (manual interno, 317 págs.)",
 
   /* PROPUESTAS DE MEJORA
-     correo: a dónde llegan las propuestas de los usuarios (ej. "gest@cascio.com.ar").
+     direccion: dirección donde corre el servidor de la guía (ver servidor/LEEME.md).
+       Las propuestas se guardan en propuestas\propuestas.csv dentro de la carpeta de la guía.
      plan: lo que se va a sumar en las próximas versiones.
        estado: "planificada" | "en-curso" | "hecha"
        pedido: sector o persona que lo pidió (opcional) */
   propuestas: {
-    correo: "",
+    direccion: "http://SERVIDOR:8080",
     plan: [
       { titulo: "Videos en las guías", estado: "en-curso", detalle: "Ver el video del procedimiento desde cada guía, con acceso directo a cada paso." },
       { titulo: "Módulo Plantillas de importación", estado: "planificada", detalle: "Plantillas descargables, columnas obligatorias y errores típicos con su solución." },

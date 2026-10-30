@@ -1,7 +1,9 @@
 # Cambios
 
 ## 0.2 — 30/10/2026
-- Nueva sección **Propuestas de mejora**: los usuarios cuentan qué necesitan ver o hacer, o qué está mal en una guía. Se arma el texto y se envía por correo o se copia.
+- Nueva sección **Propuestas de mejora**: los usuarios cuentan qué necesitan ver o hacer, o qué está mal en una guía.
+- Las propuestas se **registran** en `propuestas/propuestas.csv` a través del servidor de la guía (`servidor/`, Python o Docker).
+- **Bandeja de propuestas**: filtros por estado y cambio de estado (Nueva, Aceptada, En curso, Hecha, Descartada).
 - Botón "Proponer mejora" al pie de cada guía (ya viene con la guía elegida).
 - Lista **Próximas actualizaciones** con estado (planificada, en curso, hecha), editable en `datos.js` → `propuestas.plan`.
 - Los errores frecuentes muestran "Cómo solucionarlo".

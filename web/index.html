@@ -173,6 +173,15 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
 .state { grid-row: 1 / span 2; grid-column: 2; align-self: center; font: 600 12px/1 var(--font-display); text-transform: uppercase; letter-spacing: .07em; padding: 5px 9px; border-radius: 3px; background: var(--sunken); color: var(--muted); }
 .state.en-curso { background: var(--accent-soft); color: var(--accent); }
 .state.hecha { background: var(--fg); color: var(--bg); }
+.okbox { background: var(--accent-soft); border-radius: 6px; padding: 12px 14px; }
+.okbox.warn { background: var(--bronze-soft); }
+.tbl-wrap { overflow-x: auto; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th { text-align: left; font: 600 11px/1 var(--font-display); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding: 8px; border-bottom: 1px solid var(--line); }
+.tbl td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; min-width: 90px; }
+.tbl td:nth-child(2) { min-width: 260px; }
+.tbl .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl select { padding: 6px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--fg); font: inherit; }
 .guide-prop { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
 
 @media (max-width: 820px) {
@@ -222,7 +231,17 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
   const search = document.getElementById('search');
   let sectorFilter = null;
   let propPrefill = null;
-  const P = D.propuestas || { correo: '', plan: [] };
+  const P = D.propuestas || { plan: [] };
+  // Registro: funciona cuando la guía se abre desde el servidor (http://servidor:8080)
+  const API = '/api/propuestas';
+  let registro = null; // null = sin verificar, true/false
+  async function hayRegistro() {
+    if (registro !== null) return registro;
+    if (!/^https?:$/.test(location.protocol)) return (registro = false);
+    try { const r = await fetch(API, { cache: 'no-store' }); registro = r.ok && (r.headers.get('content-type') || '').includes('json'); }
+    catch (_) { registro = false; }
+    return registro;
+  }
 
   if (!D) { view.innerHTML = '<p class="empty">No se encontró <b>datos.js</b>. Tiene que estar en la misma carpeta que esta página.</p>'; return; }
 
@@ -362,20 +381,26 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
         <div class="field"><label for="p-prio">¿Qué tan importante es?</label><select id="p-prio">
           <option>Me frena el trabajo</option><option selected>Lo hago seguido</option><option>Sería útil</option></select></div>
         <div class="field full actions">
-          <button class="btn" type="submit">Preparar propuesta</button>
+          <button class="btn" type="submit" id="p-submit">Registrar propuesta</button>
           <span class="hint" id="p-msg"></span>
         </div>
+        <div class="field full" id="p-ok" hidden>
+          <div class="okbox"><b>Propuesta registrada.</b> <span id="p-ok-txt"></span></div>
+          <div class="actions"><button class="btn ghost" type="button" id="p-new">Registrar otra</button></div>
+        </div>
         <div class="field full" id="p-out" hidden>
-          <label>Tu propuesta</label>
+          <div class="okbox warn"><b>Esta copia de la guía no está conectada al registro.</b> Abrila desde el servidor (${esc(P.direccion || 'http://SERVIDOR:8080')}) para que la propuesta quede guardada, o copiá el texto y pasáselo al responsable de la guía.</div>
           <div class="preview" id="p-text"></div>
           <div class="actions">
-            <a class="btn" id="p-mail" href="#">Enviar por correo</a>
             <button class="btn ghost" type="button" id="p-copy">Copiar texto</button>
             <span class="hint" id="p-copied"></span>
           </div>
-          <p class="hint">Si el correo no se abre, copiá el texto y mandalo ${P.correo ? 'a <b>' + esc(P.correo) + '</b>' : 'al responsable de la guía'} por mail o Teams.</p>
         </div>
       </form>
+      <div class="panel guide-prop" id="p-bandeja-link" hidden>
+        <div><b>Propuestas registradas</b><p class="hint" id="p-count"></p></div>
+        <button class="btn ghost" type="button" data-go="bandeja">Ver bandeja</button>
+      </div>
       <section><h2>Próximas actualizaciones</h2>
         <div class="panel">${plan.length ? `<div class="road">${plan.map(r => `<div class="road-row"><b>${esc(r.titulo)}</b><span class="state ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span><small>${esc(r.detalle || '')}${r.pedido ? ' · Pedido por ' + esc(r.pedido) : ''}</small></div>`).join('')}</div>`
           : `<p class="empty">Todavía no hay mejoras planificadas. Las propuestas aceptadas van a aparecer acá.</p>`}</div>
@@ -384,26 +409,47 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
 
     const f = document.getElementById('prop-form');
     if (pre.guia) document.getElementById('p-desc').focus();
-    f.addEventListener('submit', ev => {
+    hayRegistro().then(ok => { if (!ok) return; fetch(API, { cache: 'no-store' }).then(r => r.json()).then(d => {
+      const n = d.propuestas.length, abiertas = d.propuestas.filter(x => !['Hecha', 'Descartada'].includes(x.estado)).length;
+      document.getElementById('p-count').textContent = `${n} en total · ${abiertas} sin resolver`;
+      document.getElementById('p-bandeja-link').hidden = false; }).catch(() => {}); });
+
+    f.addEventListener('submit', async ev => {
       ev.preventDefault();
       const desc = document.getElementById('p-desc').value.trim();
       const msg = document.getElementById('p-msg');
       if (!desc) { msg.textContent = 'Falta contar la propuesta en el cuadro de texto.'; document.getElementById('p-desc').focus(); return; }
       msg.textContent = '';
-      const tipo = TIPOS.find(t => t[0] === f.querySelector('input[name="tipo"]:checked').value)[1];
-      const nombre = document.getElementById('p-nombre').value.trim() || '(sin nombre)';
-      const sector = document.getElementById('p-sector').value || '(sin sector)';
-      const guia = document.getElementById('p-guia').value || 'General';
-      const prio = document.getElementById('p-prio').value;
-      const hoy = new Date().toLocaleDateString('es-AR');
-      const text = `PROPUESTA DE MEJORA – Guía FPGEST (v${D.version})\nFecha: ${hoy}\nDe: ${nombre} – ${sector}\nTipo: ${tipo}\nGuía / módulo: ${guia}\nImportancia: ${prio}\n\n${desc}`;
+      const datos = {
+        tipo: TIPOS.find(t => t[0] === f.querySelector('input[name="tipo"]:checked').value)[1].replace('…', ''),
+        nombre: document.getElementById('p-nombre').value.trim(),
+        sector: document.getElementById('p-sector').value,
+        guia: document.getElementById('p-guia').value || 'General',
+        importancia: document.getElementById('p-prio').value,
+        descripcion: desc,
+        version_guia: D.version
+      };
+      if (await hayRegistro()) {
+        const btn = document.getElementById('p-submit'); btn.disabled = true; msg.textContent = 'Guardando…';
+        try {
+          const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+          if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Error ' + r.status);
+          const res = await r.json();
+          msg.textContent = '';
+          document.getElementById('p-ok-txt').textContent = `Quedó con el número ${res.propuesta.id}. La vas a ver en «Próximas actualizaciones» cuando se incorpore.`;
+          document.getElementById('p-ok').hidden = false;
+          f.querySelectorAll('.field:not(#p-ok)').forEach(el => { if (!el.contains(document.getElementById('p-ok'))) el.hidden = true; });
+        } catch (err) { msg.textContent = 'No se pudo guardar: ' + err.message + '. Probá de nuevo en un momento.'; }
+        btn.disabled = false;
+        return;
+      }
+      const text = `PROPUESTA DE MEJORA – Guía FPGEST (v${D.version})\nFecha: ${new Date().toLocaleDateString('es-AR')}\nDe: ${datos.nombre || '(sin nombre)'} – ${datos.sector || '(sin sector)'}\nTipo: ${datos.tipo}\nGuía / módulo: ${datos.guia}\nImportancia: ${datos.importancia}\n\n${desc}`;
       document.getElementById('p-text').textContent = text;
-      const subject = `Propuesta Guía FPGEST: ${tipo.replace('…', '')} – ${guia}`;
-      document.getElementById('p-mail').href = `mailto:${encodeURIComponent(P.correo || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
       document.getElementById('p-out').hidden = false;
       document.getElementById('p-copied').textContent = '';
       document.getElementById('p-out').scrollIntoView({ block: 'nearest' });
     });
+    document.getElementById('p-new').onclick = () => renderPropuestas();
     document.getElementById('p-copy').onclick = () => {
       const t = document.getElementById('p-text');
       const done = ok => { document.getElementById('p-copied').textContent = ok ? 'Copiado.' : 'Seleccioná el texto y copialo con Ctrl+C.'; };
@@ -411,11 +457,51 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
       catch (_) { selectText(t); done(false); }
     };
   }
+  let bandejaFiltro = 'abiertas';
+  async function renderBandeja() {
+    view.innerHTML = `
+      <div class="crumbs"><button type="button" data-go="">Inicio</button><span>/</span><button type="button" data-go="propuestas">Propuestas de mejora</button><span>/</span><span>Bandeja</span></div>
+      <div class="g-head"><h1>Bandeja de propuestas</h1><p class="lead">Todo lo que propusieron los usuarios. Cambiá el estado a medida que lo incorporás. El registro completo está en <span class="source">propuestas\\propuestas.csv</span> (se abre con Excel).</p></div>
+      <div class="panel" id="b-panel"><p class="empty">Cargando…</p></div>`;
+    renderNav('propuestas');
+    const panel = document.getElementById('b-panel');
+    if (!(await hayRegistro())) { panel.innerHTML = `<p class="empty">La bandeja solo funciona abriendo la guía desde el servidor (${esc(P.direccion || 'http://SERVIDOR:8080')}).</p>`; return; }
+    let d;
+    try { d = await (await fetch(API, { cache: 'no-store' })).json(); } catch (_) { panel.innerHTML = '<p class="empty">No se pudo leer el registro. Revisá que el servidor esté encendido.</p>'; return; }
+    const draw = () => {
+      let rows = d.propuestas.slice().reverse();
+      if (bandejaFiltro === 'abiertas') rows = rows.filter(x => !['Hecha', 'Descartada'].includes(x.estado));
+      else if (bandejaFiltro !== 'todas') rows = rows.filter(x => x.estado === bandejaFiltro);
+      const cnt = e => d.propuestas.filter(x => x.estado === e).length;
+      panel.innerHTML = `
+        <div class="filters">${[['abiertas', 'Sin resolver'], ['todas', 'Todas'], ...d.estados.map(e => [e, e])].map(([v, t]) =>
+          `<button type="button" class="sector" data-bfilt="${esc(v)}" aria-pressed="${bandejaFiltro === v}">${esc(t)}${d.estados.includes(v) ? ' · ' + cnt(v) : ''}</button>`).join('')}</div>
+        ${rows.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Fecha</th><th>Propuesta</th><th>De</th><th>Importancia</th><th>Estado</th></tr></thead><tbody>
+          ${rows.map(x => `<tr><td class="num">${esc(x.fecha)}<br><span class="source">#${esc(x.id)}</span></td>
+            <td><b>${esc(x.tipo)}</b> · ${esc(x.guia)}<br>${esc(x.descripcion)}</td>
+            <td>${esc(x.nombre || '—')}<br><small class="hint">${esc(x.sector || '')}</small></td>
+            <td>${esc(x.importancia)}</td>
+            <td><select class="b-estado" data-id="${esc(x.id)}" aria-label="Estado de la propuesta ${esc(x.id)}">${d.estados.map(e => `<option${e === x.estado ? ' selected' : ''}>${e}</option>`).join('')}</select></td></tr>`).join('')}
+          </tbody></table></div>` : '<p class="empty">No hay propuestas en este filtro.</p>'}`;
+    };
+    draw();
+    panel.addEventListener('click', e => { const b = e.target.closest('[data-bfilt]'); if (b) { bandejaFiltro = b.dataset.bfilt; draw(); } });
+    panel.addEventListener('change', async e => {
+      const sel = e.target.closest('.b-estado'); if (!sel) return;
+      try {
+        const r = await fetch(`${API}/${sel.dataset.id}/estado`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: sel.value }) });
+        if (!r.ok) throw 0;
+        d.propuestas.find(x => x.id === sel.dataset.id).estado = sel.value; draw();
+      } catch (_) { sel.insertAdjacentHTML('afterend', '<br><small class="hint">No se guardó</small>'); }
+    });
+  }
+
   function selectText(el) { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
 
   function route() {
     const h = decodeURIComponent(location.hash.slice(1));
     if (h === 'propuestas') renderPropuestas();
+    else if (h === 'bandeja') renderBandeja();
     else if (byId[h]) renderGuide(byId[h]);
     else if (h.startsWith('m-') && D.modulos.find(m => m.id === h.slice(2))) renderModule(D.modulos.find(m => m.id === h.slice(2)));
     else renderHome();

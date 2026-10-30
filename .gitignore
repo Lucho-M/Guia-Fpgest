@@ -13,3 +13,6 @@ desktop.ini
 
 # Copias para publicar
 dist/
+
+# Registro de propuestas (vive en la carpeta de la red)
+propuestas/

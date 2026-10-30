@@ -1,0 +1,10 @@
+# Opción con Docker: la carpeta de la guía se monta en /guia.
+# Ajustar la ruta de la izquierda a donde está la guía en el servidor.
+services:
+  guia-fpgest:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - "F:/Emmegisoft/FPGEST_DATA/Guia_FPGEST:/guia"
+    restart: unless-stopped

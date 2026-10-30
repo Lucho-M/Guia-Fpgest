@@ -12,6 +12,7 @@ Funciona sin internet: se abre `web/index.html` desde la carpeta compartida.
 | `web/img/` | Capturas de pantalla del GEST. |
 | `plantillas/` | Hojas modelo de importación (.xlsx / .csv). |
 | `videos/` | Fuera de Git (pesan mucho). Los videos van directo en la carpeta de la red. |
+| `servidor/` | Servidor que publica la guía en la red y registra las propuestas (ver `servidor/LEEME.md`). |
 | `herramientas/armar_carpeta_compartida.bat` | Copia la versión actual a `F:\Emmegisoft\FPGEST_DATA\Guia_FPGEST`. |
 | `CHANGELOG.md` | Registro de cambios por versión. |
 
