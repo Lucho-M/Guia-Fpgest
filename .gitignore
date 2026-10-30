@@ -1,0 +1,15 @@
+# Videos: van directo en la carpeta de la red, no en Git
+videos/*
+!videos/LEEME.md
+*.mp4
+*.mov
+*.avi
+
+# Archivos temporales de Windows y Office
+Thumbs.db
+desktop.ini
+~$*
+*.tmp
+
+# Copias para publicar
+dist/

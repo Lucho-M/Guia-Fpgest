@@ -1,0 +1,8 @@
+{
+  "files.encoding": "utf8",
+  "editor.wordWrap": "on",
+  "liveServer.settings.root": "/web",
+  "cSpell.language": "es,en",
+  "cSpell.words": ["FPGEST", "GEST", "Cascio", "Recub", "desplacado", "semielaborado", "semielaborados", "retales", "acopio", "desacopio"],
+  "files.exclude": { "**/Thumbs.db": true }
+}
