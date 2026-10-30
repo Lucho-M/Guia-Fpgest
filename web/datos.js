@@ -21,10 +21,25 @@
    ===================================================================== */
 
 window.GUIA_FPGEST = {
-  version: "0.1",
+  version: "0.2",
   actualizado: "30/10/2026",
   autor: "",   // tu nombre, si querés que figure al pie
   fuente: "Implementación del ERP GEST (manual interno, 317 págs.)",
+
+  /* PROPUESTAS DE MEJORA
+     correo: a dónde llegan las propuestas de los usuarios (ej. "gest@cascio.com.ar").
+     plan: lo que se va a sumar en las próximas versiones.
+       estado: "planificada" | "en-curso" | "hecha"
+       pedido: sector o persona que lo pidió (opcional) */
+  propuestas: {
+    correo: "",
+    plan: [
+      { titulo: "Videos en las guías", estado: "en-curso", detalle: "Ver el video del procedimiento desde cada guía, con acceso directo a cada paso." },
+      { titulo: "Módulo Plantillas de importación", estado: "planificada", detalle: "Plantillas descargables, columnas obligatorias y errores típicos con su solución." },
+      { titulo: "Módulo Asignación de stock", estado: "planificada", detalle: "Asignación, reasignación, carpetas de acopio -0 y desplacado." },
+      { titulo: "Módulo Órdenes de compra", estado: "planificada", detalle: "Cotizaciones, generación, autorizaciones y cancelación." }
+    ]
+  },
 
   sectores: ["Cómputos", "Órdenes de Fabricación", "Abastecimiento", "Compras", "Producción", "Despacho", "Administración"],
 
