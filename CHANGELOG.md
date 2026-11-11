@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.4 — 11/11/2026
+- Diseño nuevo: barra blanca con el logo de Cascio y cuerpo oscuro con acentos rojos.
+- Inicio pensado para no perderse: buscador grande, "Elegí tu sector" y lista de tareas que empiezan con un verbo.
+- Menú fijo arriba (Inicio, Todas las guías, Glosario, Proponer una mejora) y botón "Volver" en todas las pantallas.
+- Cada guía muestra "Dónde está en el GEST" (ruta igual que en pantalla) y la sección "Qué no hacer".
+- Glosario "cómo le decimos / cómo figura en el GEST"; el buscador entiende las dos formas.
+- Campos nuevos en `datos.js`: `tarea`, `ruta`, `palabras`, `noHacer`, y la lista `glosario`.
+
 ## 0.3 — 11/11/2026
 - Capturas con los datos sensibles tapados (proveedores, CUIT, direcciones, teléfonos, clientes, importes, nombres de personas).
 - La página pide a los buscadores que no la indexen.
