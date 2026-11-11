@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Guía FPGEST Cascio</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -362,6 +363,7 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
   function renderPropuestas() {
     const pre = propPrefill || {};
     propPrefill = null;
+    if (P.formulario) { renderPropuestasFormulario(pre); return; }
     const guideOpts = D.modulos.map(m => m.guias.length
       ? `<optgroup label="${esc(m.titulo)}">${m.guias.map(g => `<option value="${esc(g.titulo)}"${pre.guia === g.id ? ' selected' : ''}>${esc(g.titulo)}</option>`).join('')}</optgroup>`
       : `<option value="Módulo ${esc(m.titulo)}">Módulo ${esc(m.titulo)} (en preparación)</option>`).join('');
@@ -457,6 +459,27 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
       catch (_) { selectText(t); done(false); }
     };
   }
+  // Propuestas por formulario externo (Google Forms): se usa cuando datos.js tiene propuestas.formulario
+  function renderPropuestasFormulario(pre) {
+    const g = pre.guia && byId[pre.guia];
+    let url = P.formulario;
+    if (g && P.formularioCampoGuia) url += (url.includes('?') ? '&' : '?') + 'usp=pp_url&' + encodeURIComponent(P.formularioCampoGuia) + '=' + encodeURIComponent(g.titulo);
+    const plan = P.plan || [];
+    view.innerHTML = `
+      <div class="crumbs"><button type="button" data-go="">Inicio</button><span>/</span><span>Propuestas de mejora</span></div>
+      <div class="g-head"><h1>Propuestas de mejora</h1>
+        <p class="lead">¿Qué necesitás ver o hacer en el GEST que todavía no está en la guía? ¿Encontraste algo mal? Contalo en el formulario y se tiene en cuenta para la próxima actualización.</p></div>
+      <div class="panel guide-prop" style="border-top:1px solid var(--line)">
+        <div><b>${g ? 'Propuesta sobre: ' + esc(g.titulo) : 'Formulario de propuestas'}</b><p class="hint">Se abre en otra pestaña. Lleva dos minutos.</p></div>
+        <a class="btn" href="${esc(url)}" target="_blank" rel="noopener">Abrir el formulario</a>
+      </div>
+      <section><h2>Próximas actualizaciones</h2>
+        <div class="panel">${plan.length ? `<div class="road">${plan.map(r => `<div class="road-row"><b>${esc(r.titulo)}</b><span class="state ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span><small>${esc(r.detalle || '')}${r.pedido ? ' · Pedido por ' + esc(r.pedido) : ''}</small></div>`).join('')}</div>`
+          : `<p class="empty">Todavía no hay mejoras planificadas.</p>`}</div>
+      </section>`;
+    renderNav('propuestas');
+  }
+
   let bandejaFiltro = 'abiertas';
   async function renderBandeja() {
     view.innerHTML = `

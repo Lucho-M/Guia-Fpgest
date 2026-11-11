@@ -21,8 +21,8 @@
    ===================================================================== */
 
 window.GUIA_FPGEST = {
-  version: "0.2",
-  actualizado: "30/10/2026",
+  version: "0.3",
+  actualizado: "11/11/2026",
   autor: "",   // tu nombre, si querés que figure al pie
   fuente: "Implementación del ERP GEST (manual interno, 317 págs.)",
 
@@ -34,6 +34,11 @@ window.GUIA_FPGEST = {
        pedido: sector o persona que lo pidió (opcional) */
   propuestas: {
     direccion: "http://SERVIDOR:8080",
+    // Si la guía se publica en internet: pegar acá el enlace del formulario de Google.
+    // Con el enlace cargado, el botón "Proponer una mejora" abre el formulario (ya no usa el servidor).
+    formulario: "",
+    // Opcional: código del campo "Guía" del formulario (ej. "entry.123456789") para que llegue ya completo.
+    formularioCampoGuia: "",
     plan: [
       { titulo: "Videos en las guías", estado: "en-curso", detalle: "Ver el video del procedimiento desde cada guía, con acceso directo a cada paso." },
       { titulo: "Módulo Plantillas de importación", estado: "planificada", detalle: "Plantillas descargables, columnas obligatorias y errores típicos con su solución." },

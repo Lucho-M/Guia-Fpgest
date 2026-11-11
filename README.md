@@ -42,6 +42,24 @@ git remote add servidor F:\Emmegisoft\FPGEST_DATA\Guia_FPGEST_repo.git
 ```
 Después, cada tanto: `git push servidor main`.
 
+## Publicar en internet (GitHub Pages)
+
+La guía pública vive en **otro repositorio**, `guia-fpgest-web`, que contiene solo la carpeta `web/`.
+Este repositorio de trabajo queda **privado**: su historial guarda las capturas originales sin tapar.
+
+Una sola vez:
+1. Crear en GitHub el repositorio **público** `guia-fpgest-web` (vacío).
+2. Clonarlo **al lado** de este proyecto (misma carpeta padre).
+3. Doble clic en `herramientas/publicar_web.bat`.
+4. En GitHub → repositorio `guia-fpgest-web` → Settings → Pages → Source: *Deploy from a branch* → `main` / `/ (root)`.
+
+Cada vez que quieras actualizar la página: doble clic en `herramientas/publicar_web.bat`.
+
+Antes de publicar, siempre:
+- Toda captura nueva va con los datos tapados (proveedores, CUIT, precios, importes, clientes, obras, nombres de personas, direcciones y teléfonos).
+- El texto no nombra proveedores ni clientes reales, ni importes.
+- Los videos no se publican por esta vía.
+
 ## Cómo agregar una guía
 
 Copiar una guía existente en `web/datos.js` y cambiar sus campos:
@@ -63,6 +81,6 @@ Un módulo "en preparación" se activa solo cuando le cargás la primera guía.
 
 ## Reglas del repositorio
 
-- El repositorio es **local** (PC + servidor LAN). No subirlo a servicios externos: las capturas muestran proveedores, CUIT y datos internos.
+- Este repositorio de trabajo es **privado**. Lo público sale solo por `guia-fpgest-web`.
 - Una confirmación (commit) por cambio, con un mensaje claro: `Agrega guía Remito de venta`, `Corrige pasos de Rectificar kg`.
 - Al cerrar una versión, anotarla en `CHANGELOG.md` y subir el número en `web/datos.js` (`version`).
