@@ -16,3 +16,7 @@ dist/
 
 # Registro de propuestas (vive en la carpeta de la red)
 propuestas/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
