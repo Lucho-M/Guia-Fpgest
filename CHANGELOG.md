@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.6 — 11/11/2026
+- Un color por sector (botones de sector, tareas y etiquetas). Se cambian en `datos.js` → `coloresSector`.
+- Transiciones: cada pantalla entra con movimiento, las listas aparecen en cascada y las tarjetas responden al pasar el mouse. Se desactivan solas si el equipo tiene "reducir movimiento".
+
 ## 0.5 — 11/11/2026
 - Módulo nuevo **Órdenes de compra** (Compras), con 5 guías: revisar una carpeta antes de comprar, pedir cotizaciones, emitir una orden de compra, autorizarla, y estados y cancelación.
 - 11 capturas nuevas, con proveedores, clientes y nombres tapados.

@@ -23,7 +23,7 @@
    ===================================================================== */
 
 window.GUIA_FPGEST = {
-  version: "0.5",
+  version: "0.6",
   actualizado: "11/11/2026",
   autor: "",   // tu nombre, si querés que figure al pie
   fuente: "Implementación del ERP GEST (manual interno, 317 págs.)",
@@ -61,6 +61,18 @@ window.GUIA_FPGEST = {
     { decimos: "Elegir proveedor y precio", gest: "Asociar proveedores", ruta: "Home › Pedidos › abrir la carpeta › Necesidades › Asociar proveedores" },
     { decimos: "Entregar material a producción", gest: "Operación de almacén SHIFT", ruta: "Compras y Almacén › Operaciones de Almacén › Añadir › SHIFT" }
   ],
+
+  /* COLOR DE CADA SECTOR: se usa en los botones de sector, en las tareas y en las etiquetas.
+     Para cambiar uno, reemplazá el código de color (se puede elegir en https://htmlcolorcodes.com/es/). */
+  coloresSector: {
+    "Cómputos": "#4aa3e8",                 // celeste
+    "Órdenes de Fabricación": "#2dd4bf",   // turquesa
+    "Abastecimiento": "#f5c518",           // amarillo
+    "Compras": "#f28c28",                  // naranja
+    "Producción": "#3fb950",               // verde
+    "Despacho": "#a371f7",                 // violeta
+    "Administración": "#e879a8"            // rosa
+  },
 
   sectores: ["Cómputos", "Órdenes de Fabricación", "Abastecimiento", "Compras", "Producción", "Despacho", "Administración"],
 

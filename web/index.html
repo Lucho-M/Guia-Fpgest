@@ -77,14 +77,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hint { font-size: 14px; color: var(--muted); margin: 0; }
 
 .sectors { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
-.sector-btn { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 3px; cursor: pointer; }
-.sector-btn:hover { background: var(--raised); border-left-color: var(--red); }
+.sector-btn { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--sec, var(--blue)); border-radius: 3px; cursor: pointer; }
+.sector-btn:hover { background: var(--raised); border-color: var(--sec, var(--blue)); }
 .sector-btn b { font: 600 20px/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .04em; }
 .sector-btn small { color: var(--muted); font-size: 14px; }
 
 .tasks { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
-.task { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 14px; align-items: center; padding: 16px 18px; background: none; border: 0; border-top: 1px solid var(--line); text-align: left; cursor: pointer; width: 100%; }
+.task { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 14px; align-items: center; padding: 16px 18px; background: none; border: 0; border-top: 1px solid var(--line); text-align: left; cursor: pointer; width: 100%; }
 .task:first-child { border-top: 0; }
+.task::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--sec, transparent); }
 .task:hover { background: var(--raised); }
 .task b { font-size: 18px; font-weight: 600; }
 .task small { grid-column: 1; color: var(--muted); font-size: 14px; }
@@ -138,7 +139,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .fact dt { font: 600 12px/1 var(--font-display); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
 .fact dd { margin: 0; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.tag { font-size: 14px; padding: 3px 10px; border: 1px solid var(--line); border-radius: 99px; background: var(--raised); }
+.tag { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; padding: 3px 10px; border: 1px solid var(--line); border-radius: 99px; background: var(--raised); }
+.tag::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--sec, var(--muted)); flex: none; }
+.redbar.sec { background: var(--sec, var(--red)); width: 96px; }
 .path { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .path span { background: var(--raised); border: 1px solid var(--line); border-radius: 3px; padding: 4px 9px; font-weight: 600; }
 .path i { color: var(--red); font-style: normal; font-weight: 700; }
@@ -232,7 +235,33 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .step { grid-template-columns: minmax(0, 1fr); }
   .step::before { grid-row: auto; }
 }
-@media (prefers-reduced-motion: no-preference) { .sector-btn, .mod, .task, .btn { transition: background-color .12s, border-color .12s; } }
+/* ---------- movimiento: entra cada pantalla, las listas aparecen en cascada, las tarjetas responden al pasar ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes zoom { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+  #view > * { animation: rise .42s cubic-bezier(.2, .7, .2, 1) both; }
+  #view > *:nth-child(2) { animation-delay: .06s; }
+  #view > *:nth-child(3) { animation-delay: .12s; }
+  #view > *:nth-child(n+4) { animation-delay: .18s; }
+  .redbar { transform-origin: left; animation: grow .55s cubic-bezier(.2, .7, .2, 1) .15s both; }
+  .cascade > * { animation: rise .4s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 45ms + .12s); }
+  .g-main > section, .g-main > .facts { animation: rise .45s cubic-bezier(.2, .7, .2, 1) both; animation-delay: .14s; }
+  .g-side { animation: fade .5s .2s both; }
+  .viewer { animation: fade .18s both; }
+  .viewer img { animation: zoom .22s cubic-bezier(.2, .7, .2, 1) both; }
+  .sector-btn, .mod, .task, .btn, .side-link, .shot { transition: background-color .18s, border-color .18s, transform .18s cubic-bezier(.2, .7, .2, 1), box-shadow .18s; }
+  .sector-btn:hover, button.mod:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0, 0, 0, .45); }
+  .task .go { transition: transform .18s cubic-bezier(.2, .7, .2, 1); }
+  .task:hover .go { transform: translateX(6px); }
+  .task::before { transition: width .18s; }
+  .task:hover::before { width: 9px; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active, .sector-btn:active, button.mod:active { transform: scale(.97); }
+  .shot:hover { border-color: var(--blue-hi); }
+  .topnav button { transition: border-color .18s, background-color .18s; }
+}
 </style>
 </head>
 <body>
@@ -279,6 +308,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   const byId = Object.fromEntries(all.map(g => [g.id, g]));
   const sectorBySlug = Object.fromEntries(D.sectores.map(s => ['sector-' + slug(s), s]));
   const name = g => g.tarea || g.titulo;
+  const COL = D.coloresSector || {};
+  const sec = s => COL[s] ? ` style="--sec:${esc(COL[s])}"` : '';
+  const secOf = g => D.sectores.find(s => g.responsable.includes(s)) || '';
   const hace = (g, s) => g.responsable.includes(s);
   const afecta = (g, s) => g.sectores.includes(s);
 
@@ -297,15 +329,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   }
 
   /* ---------- piezas ---------- */
-  const taskRow = g => `<button class="task" type="button" data-go="${g.id}"><b>${esc(name(g))}</b><span class="chip ${g.tipo}">${g.tipo}</span><span class="go" aria-hidden="true">›</span><small>${esc(g.modulo.titulo)} · lo hace ${esc(g.responsable)}</small></button>`;
-  const taskList = (list, emptyMsg) => `<div class="tasks">${list.length ? list.map(taskRow).join('') : `<p class="empty">${emptyMsg}</p>`}</div>`;
+  const taskRow = (g, i) => `<button class="task" type="button" data-go="${g.id}" style="--i:${i}${COL[secOf(g)] ? ';--sec:' + esc(COL[secOf(g)]) : ''}"><b>${esc(name(g))}</b><span class="chip ${g.tipo}">${g.tipo}</span><span class="go" aria-hidden="true">›</span><small>${esc(g.modulo.titulo)} · lo hace ${esc(g.responsable)}</small></button>`;
+  const taskList = (list, emptyMsg, quiet) => `<div class="tasks${quiet ? '' : ' cascade'}">${list.length ? list.map(taskRow).join('') : `<p class="empty">${emptyMsg}</p>`}</div>`;
   const pathHtml = r => `<div class="path">${r.split('›').map(x => `<span>${esc(x.trim())}</span>`).join('<i aria-hidden="true">›</i>')}</div>`;
   const backBar = crumbs => `<div class="back"><button class="btn ghost" type="button" data-back>← Volver</button><div class="crumbs">${crumbs}</div></div>`;
   const crumbHome = `<button type="button" data-go="">Inicio</button>`;
   const legend = `<div class="legend"><span><span class="chip Instructivo">Instructivo</span> &nbsp;cómo se hace en el sistema, paso a paso</span><span><span class="chip Procedimiento">Procedimiento</span> &nbsp;qué se hace, quién y cuándo</span></div>`;
   const propCallout = `<div class="callout"><div><b>¿Falta algo o hay algo mal?</b><p>Contanos qué necesitás ver o hacer en el GEST y lo sumamos en la próxima versión.</p></div><button class="btn" type="button" data-go="propuestas">Proponer una mejora</button></div>`;
-  const modsHtml = () => D.modulos.map(m => m.guias.length
-    ? `<button class="mod" type="button" data-go="m-${m.id}"><b>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg on">${m.guias.length} guías ›</span></button>`
+  const modsHtml = () => D.modulos.map((m, i) => m.guias.length
+    ? `<button class="mod" type="button" data-go="m-${m.id}" style="--i:${Math.min(i, 8)}"><b>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg on">${m.guias.length} guías ›</span></button>`
     : `<div class="mod off"><b>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg">En preparación</span></div>`).join('');
 
   function setNav(key) {
@@ -327,10 +359,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
       <section id="results" hidden></section>
       <div class="stack" id="home-rest">
         <section><div class="sec-head"><h2>Elegí tu sector</h2><p>Te mostramos lo que hacés vos y lo que te afecta de otros sectores.</p></div>
-          <div class="sectors">${D.sectores.map(s => { const n = all.filter(g => hace(g, s) || afecta(g, s)).length;
-            return `<button class="sector-btn" type="button" data-go="sector-${slug(s)}"><b>${esc(s)}</b><small>${n ? n + (n === 1 ? ' guía' : ' guías') : 'Todavía sin guías'}</small></button>`; }).join('')}</div></section>
+          <div class="sectors cascade">${D.sectores.map((s, i) => { const n = all.filter(g => hace(g, s) || afecta(g, s)).length;
+            return `<button class="sector-btn" type="button" data-go="sector-${slug(s)}" style="--i:${i}${COL[s] ? ';--sec:' + esc(COL[s]) : ''}"><b>${esc(s)}</b><small>${n ? n + (n === 1 ? ' guía' : ' guías') : 'Todavía sin guías'}</small></button>`; }).join('')}</div></section>
         <section><div class="sec-head"><h2>Tareas</h2>${legend}</div>${taskList(all, 'Todavía no hay guías cargadas.')}</section>
-        <section><div class="sec-head"><h2>Módulos</h2></div><div class="mods">${modsHtml()}</div></section>
+        <section><div class="sec-head"><h2>Módulos</h2></div><div class="mods cascade">${modsHtml()}</div></section>
         ${propCallout}
       </div>`;
     setNav('inicio');
@@ -341,7 +373,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
       $('home-rest').hidden = has; res.hidden = !has;
       if (has) { const list = search(q.value);
         res.innerHTML = `<div class="sec-head"><h2>${list.length} ${list.length === 1 ? 'resultado' : 'resultados'}</h2></div>` +
-          taskList(list, `No encontramos nada con «${esc(q.value)}». Probá con otra palabra, o pedí que se agregue con «Proponer una mejora».`); }
+          taskList(list, `No encontramos nada con «${esc(q.value)}». Probá con otra palabra, o pedí que se agregue con «Proponer una mejora».`, true); }
     };
     q.addEventListener('input', run); run();
   }
@@ -350,7 +382,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     view.innerHTML = `${backBar(crumbHome + '<span>/</span><span>Todas las guías</span>')}
       <div class="g-head"><span class="eyebrow">${all.length} guías</span><h1>Todas las guías</h1><hr class="redbar">${legend}</div>
       ${D.modulos.filter(m => m.guias.length).map(m => `<section><div class="sec-head"><h2>${esc(m.titulo)}</h2><p>${esc(m.descripcion)}</p></div>${taskList(m.guias.map(g => byId[g.id]), '')}</section>`).join('')}
-      <section><div class="sec-head"><h2>Módulos</h2></div><div class="mods">${modsHtml()}</div></section>`;
+      <section><div class="sec-head"><h2>Módulos</h2></div><div class="mods cascade">${modsHtml()}</div></section>`;
     setNav('todas');
   }
 
@@ -364,7 +396,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   function renderSector(s) {
     const mine = all.filter(g => hace(g, s)), others = all.filter(g => !hace(g, s) && afecta(g, s));
     view.innerHTML = `${backBar(crumbHome + '<span>/</span><span>' + esc(s) + '</span>')}
-      <div class="g-head"><span class="eyebrow">Sector</span><h1>${esc(s)}</h1><hr class="redbar"></div>
+      <div class="g-head"${sec(s)}><span class="eyebrow">Sector</span><h1>${esc(s)}</h1><hr class="redbar sec"></div>
       <section><div class="sec-head"><h2>Lo que hacés vos</h2><p>Tareas que ejecuta ${esc(s)}.</p></div>${taskList(mine, 'Todavía no hay guías para este sector. Si necesitás una, pedila con «Proponer una mejora».')}</section>
       <section><div class="sec-head"><h2>Lo que te afecta</h2><p>Lo hace otro sector, pero cambia tu trabajo.</p></div>${taskList(others, 'Por ahora no hay tareas de otros sectores que te afecten.')}</section>
       ${propCallout}`;
@@ -381,9 +413,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
         <article class="g-main">
           <div class="g-head"><span><span class="chip ${g.tipo}">${g.tipo}</span></span><h1>${esc(name(g))}</h1><hr class="redbar"><p class="lead">${esc(g.resumen)}</p></div>
           <dl class="facts">
-            <div class="fact"><dt>Quién lo hace</dt><dd>${esc(g.responsable)}</dd></div>
+            <div class="fact"><dt>Quién lo hace</dt><dd class="tags">${D.sectores.filter(s => g.responsable.includes(s)).map(s => `<span class="tag"${sec(s)}>${esc(s)}</span>`).join('') || esc(g.responsable)}</dd>${/[·(]/.test(g.responsable) ? `<dd class="hint">${esc(g.responsable)}</dd>` : ''}</div>
             <div class="fact"><dt>Cuándo</dt><dd>${esc(g.cuando)}</dd></div>
-            <div class="fact"><dt>A quién afecta</dt><dd class="tags">${g.sectores.map(s => `<span class="tag">${esc(s)}</span>`).join('')}</dd></div>
+            <div class="fact"><dt>A quién afecta</dt><dd class="tags">${g.sectores.map(s => `<span class="tag"${sec(s)}>${esc(s)}</span>`).join('')}</dd></div>
             ${g.ruta ? `<div class="fact wide"><dt>Dónde está en el GEST</dt><dd>${pathHtml(g.ruta)}</dd></div>` : ''}
           </dl>
           ${g.noHacer.length ? `<section class="gsec"><h2>Qué no hacer</h2><div class="no">${g.noHacer.map(n => `<div class="no-item"><p>${n.texto}</p>${n.img ? `<button class="shot" type="button" data-img="${esc(n.img)}" aria-label="Ampliar la captura"><img src="${esc(n.img)}" alt="Ejemplo de lo que no hay que hacer" loading="lazy"></button>` : ''}</div>`).join('')}</div></section>` : ''}
