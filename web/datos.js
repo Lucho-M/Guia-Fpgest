@@ -23,7 +23,7 @@
    ===================================================================== */
 
 window.GUIA_FPGEST = {
-  version: "0.4",
+  version: "0.5",
   actualizado: "11/11/2026",
   autor: "",   // tu nombre, si querés que figure al pie
   fuente: "Implementación del ERP GEST (manual interno, 317 págs.)",
@@ -45,7 +45,8 @@ window.GUIA_FPGEST = {
       { titulo: "Videos en las guías", estado: "en-curso", detalle: "Ver el video del procedimiento desde cada guía, con acceso directo a cada paso." },
       { titulo: "Módulo Plantillas de importación", estado: "planificada", detalle: "Plantillas descargables, columnas obligatorias y errores típicos con su solución." },
       { titulo: "Módulo Asignación de stock", estado: "planificada", detalle: "Asignación, reasignación, carpetas de acopio -0 y desplacado." },
-      { titulo: "Módulo Órdenes de compra", estado: "planificada", detalle: "Cotizaciones, generación, autorizaciones y cancelación." }
+      { titulo: "Módulo Órdenes de compra", estado: "hecha", detalle: "Revisar la carpeta, cotizar, emitir, autorizar y cancelar.", pedido: "Compras" },
+      { titulo: "Fletes y transporte en Compras", estado: "planificada", detalle: "Cómo imputar las horas de transporte a las carpetas." }
     ]
   },
 
@@ -56,6 +57,8 @@ window.GUIA_FPGEST = {
     { decimos: "Carpeta", gest: "Pedido", ruta: "Home › Pedidos" },
     { decimos: "Stock libre", gest: "No hay ningún contrato asociado", ruta: "Compras y Almacén › Situación de Almacén" },
     { decimos: "Remito de salida", gest: "Remito Cascio", ruta: "Home › Documentos › Remito Cascio" },
+    { decimos: "Cotización", gest: "Propuesta de pedido", ruta: "Home › Pedidos › abrir la carpeta › Ordenes de Compra › Propuestas de pedido" },
+    { decimos: "Elegir proveedor y precio", gest: "Asociar proveedores", ruta: "Home › Pedidos › abrir la carpeta › Necesidades › Asociar proveedores" },
     { decimos: "Entregar material a producción", gest: "Operación de almacén SHIFT", ruta: "Compras y Almacén › Operaciones de Almacén › Añadir › SHIFT" }
   ],
 
@@ -228,7 +231,178 @@ window.GUIA_FPGEST = {
     { id: "carpetas", titulo: "Carpetas y estados", descripcion: "Tipos de carpetas, codificación, emisión y cambios de estado.", paginas: "6–19, 55–56", guias: [] },
     { id: "articulos", titulo: "Artículos y variantes", descripcion: "Proveedores, variantes, fórmulas, lista de componentes.", paginas: "58–81", guias: [] },
     { id: "asignaciones", titulo: "Asignación de stock", descripcion: "Asignación, reasignación, carpetas de acopio -0, desplacado.", paginas: "36–54", guias: [] },
-    { id: "ordenes-compra", titulo: "Órdenes de compra", descripcion: "Cotizaciones, generación, autorizaciones y cancelación.", paginas: "107–124", guias: [] },
+    {
+      id: "ordenes-compra",
+      titulo: "Órdenes de compra",
+      descripcion: "Revisar la carpeta, pedir cotizaciones, emitir, autorizar y cancelar órdenes de compra.",
+      paginas: "107–124",
+      guias: [
+        {
+          id: "preparar-carpeta-compras",
+          tarea: "Revisar una carpeta antes de comprar",
+          ruta: "Home › Pedidos › Carpetas › abrir la carpeta › Necesidades",
+          palabras: ["necesidades", "descomponer", "lista de componentes", "crudo", "tratamiento", "pendientes", "situación del artículo"],
+          noHacer: [
+            { texto: "No descomponer el aluminio que dice <b>CRUDO</b>: no lleva tratamiento." },
+            { texto: "No agregar ni modificar necesidades de la carpeta. Eso lo hace solo <b>Órdenes de Fabricación</b>." }
+          ],
+          titulo: "Identificar las necesidades",
+          tipo: "Instructivo",
+          resumen: "Qué controlar en una carpeta cuando llega a Compras y cómo descomponer las necesidades que llevan tratamiento, para saber qué hay que comprar.",
+          responsable: "Compras",
+          sectores: ["Órdenes de Fabricación", "Abastecimiento"],
+          cuando: "Cuando Órdenes de Fabricación avisa por correo que la carpeta está lista para procesar.",
+          reglas: [
+            "Se descompone la lista de componentes de <b>aluminio</b> y de <b>corte y plegado</b> siempre que tengan un tratamiento superficial.",
+            "Si una necesidad de aluminio o de corte y plegado no dice ni tratamiento ni CRUDO, pedir a Órdenes de Fabricación que agregue el atributo antes de seguir.",
+            "Si el proveedor aporta el material y hace todos los servicios, no se descompone: se cambia el precio por artículo.",
+            "Corte y plegado: los desarrollos especiales de la obra tienen el plano en <b>Anexos</b> de la carpeta; los plegados estándar lo tienen en el anexo del artículo."
+          ],
+          pasos: [
+            { titulo: "Abrir la carpeta", texto: "En <b>Home → Pedidos</b>, carpeta <b>Carpetas</b>, abrí la carpeta que avisó Órdenes de Fabricación y entrá a la solapa <b>Necesidades</b>.", img: "img/oc-01-necesidades.jpg" },
+            { titulo: "Controlar los atributos", texto: "Abrí cada categoría y revisá que el aluminio y el corte y plegado tengan su <b>tratamiento</b> (o CRUDO) y la <b>longitud</b>.", img: "img/oc-02-atributos.jpg" },
+            { titulo: "Descomponer la lista de componentes", texto: "En la barra de la solapa Necesidades tocá <b>Descomponer lista de componentes base</b>. Marcá las necesidades que llevan tratamiento y tocá <b>Confirmar</b>.", img: "img/oc-03-descomponer.jpg" },
+            { titulo: "Verificar el resultado", texto: "Las necesidades descompuestas muestran un ícono nuevo. Al seleccionarlas, abajo se ve el artículo y su <b>RECUB</b> (el recubrimiento) como líneas separadas.", img: "img/oc-04-componentes.jpg" },
+            { titulo: "Ver todo lo pendiente", texto: "En <b>Compras y Almacén → Situación Artículo</b>, filtrá por categoría y tocá <b>Generar Datos</b>. La solapa <b>Situaciones de requerimiento</b> muestra lo pendiente. Se puede seleccionar y copiar a Excel con Ctrl+C para trabajar las cotizaciones." }
+          ],
+          errores: [],
+          relacionados: ["pedir-cotizaciones", "emitir-orden-compra"],
+          fuente: "Págs. 108–112"
+        },
+        {
+          id: "pedir-cotizaciones",
+          tarea: "Pedir cotizaciones a proveedores",
+          ruta: "Home › Pedidos › abrir la carpeta › Ordenes de Compra › Propuestas de pedido",
+          palabras: ["cotización", "cotizar", "presupuesto de proveedor", "propuesta de pedido", "comparar precios"],
+          noHacer: [],
+          titulo: "Propuestas de pedido",
+          tipo: "Instructivo",
+          resumen: "Cómo armar desde la carpeta el pedido de cotización para uno o varios proveedores y seguir en qué estado está.",
+          responsable: "Compras",
+          sectores: ["Administración"],
+          cuando: "Antes de emitir la orden de compra, cuando hay que comparar proveedores.",
+          reglas: [
+            "Para elegir proveedor se compara: <b>precio</b>, <b>tiempo de entrega</b>, <b>modalidad de entrega</b> y <b>forma de pago</b>.",
+            "El estado de la cotización se actualiza a mano: Por enviar, Enviado, Recibido o Confirmado."
+          ],
+          pasos: [
+            { titulo: "Abrir Propuestas de pedido", texto: "Dentro de la carpeta, solapa <b>Ordenes de Compra</b> → <b>Propuestas de pedido</b>, tocá <b>Autocomposición de propuestas de pedido</b>.", img: "img/oc-05-propuestas.jpg" },
+            { titulo: "Elegir qué cotizar", texto: "Marcá las necesidades que querés cotizar." },
+            { titulo: "Elegir los proveedores", texto: "En la solapa <b>Proveedores</b>, pasá a la lista de la derecha los proveedores a los que se les va a pedir precio y tocá <b>Continuar</b>." },
+            { titulo: "Completar el documento", texto: "Se genera una propuesta por proveedor. Completá <b>Enviado mediante</b> y <b>Estado</b>. En las solapas de abajo se agregan anexos y textos.", img: "img/oc-06-propuesta-estado.jpg" },
+            { titulo: "Seguir el estado", texto: "A medida que avanza, cambiá el <b>Estado</b> de la propuesta para saber cuáles faltan responder." }
+          ],
+          errores: [],
+          relacionados: ["preparar-carpeta-compras", "emitir-orden-compra"],
+          fuente: "Págs. 113–114"
+        },
+        {
+          id: "emitir-orden-compra",
+          tarea: "Emitir una orden de compra",
+          ruta: "Home › Pedidos › abrir la carpeta › Necesidades › Asociar proveedores › Manual",
+          palabras: ["orden de compra", "O.C.", "OC", "comprar", "asociar proveedores", "precio", "emitir", "autocomposición"],
+          noHacer: [
+            { texto: "No emitir una orden de compra con precio 0, salvo la de reposición por una devolución." },
+            { texto: "No dejar la orden sin <b>fecha de entrega</b>: sin esa fecha no se puede medir si el proveedor cumple." }
+          ],
+          titulo: "Generar órdenes de compra",
+          tipo: "Instructivo",
+          resumen: "Cómo cargar el proveedor y el precio acordado en las necesidades de la carpeta, generar la orden de compra y dejarla emitida.",
+          responsable: "Compras",
+          sectores: ["Abastecimiento", "Administración"],
+          cuando: "Cuando ya está elegido el proveedor de cada necesidad.",
+          reglas: [
+            "Campos obligatorios de la orden: <b>fecha de entrega</b>, <b>forma de pago</b>, <b>cantidad y U.M. del proveedor</b> y <b>precio mayor a 0</b>.",
+            "Cada artículo tiene que tener <b>Proveedor</b>, <b>U.M.</b> y <b>Fórmula de conv.</b>; si falta alguno, no deja guardar.",
+            "El artículo tiene que tener cargado su <b>almacén</b> de destino. Si no, Abastecimiento tiene errores al recibir.",
+            "Al imprimir o guardar, la orden pasa de <b>Por emitir</b> a <b>Emitido</b>. Emitida, ya no se pueden cambiar las necesidades."
+          ],
+          pasos: [
+            { titulo: "Abrir Asociar proveedores", texto: "En la solapa <b>Necesidades</b> de la carpeta tocá <b>Asociar proveedores</b> y elegí <b>Manual</b>.", img: "img/oc-07-asociar-manual.jpg" },
+            { titulo: "Cargar proveedor y precio", texto: "En cada línea completá según la cotización: <b>Proveedor</b>, <b>U.M.</b>, <b>Fórmula conv.</b>, <b>Precio</b> y <b>Descuento</b>. Con clic derecho → <b>Heredar datos</b> se copia la configuración de otro proveedor que ya tenga el artículo." },
+            { titulo: "Actualizar precios y guardar", texto: "Tildá <b>Actualizar precios en carpeta</b> y tocá <b>Guardar</b>. Con el tilde, el precio se actualiza también en el artículo; sin el tilde, solo dentro de esta carpeta.", img: "img/oc-08-actualizar-precio.jpg" },
+            { titulo: "Generar la orden", texto: "En la solapa <b>Ordenes de Compra</b> de la carpeta, marcá lo que querés pedir y tocá <b>Autocomposición de órdenes de compra</b>. Se arma una orden por proveedor." },
+            { titulo: "Abrir la orden generada", texto: "En <b>Compras y Almacén → Ordenes de Compra</b>, la orden aparece en <b>Por Emitir</b>. Abrila.", img: "img/oc-10-lista.jpg" },
+            { titulo: "Completar y emitir", texto: "Cargá la <b>fecha de entrega</b> y la <b>forma de pago</b>, y agregá anexos o textos para el proveedor si hacen falta. Si el total supera el límite de compra directa, primero hay que autorizarla. Después <b>imprimí o guardá</b>: queda en <b>Emitido</b>." }
+          ],
+          errores: [
+            { problema: "No deja guardar al asociar proveedores.", solucion: "A algún artículo le falta Proveedor, U.M. o Fórmula de conv. Completar los tres en todas las líneas." },
+            { problema: "Abastecimiento avisa que una línea llega sin almacén en la recepción.", solucion: "Cargar el almacén de destino en la ficha del artículo, solapa Almacén." }
+          ],
+          relacionados: ["autorizar-orden-compra", "estados-orden-compra", "recepcion-materiales"],
+          fuente: "Págs. 114–118"
+        },
+        {
+          id: "autorizar-orden-compra",
+          tarea: "Autorizar una orden de compra",
+          ruta: "Compras y Almacén › Ordenes de Compra › Autorización emisión",
+          palabras: ["autorización", "autorizar", "límite de compra", "jefe de compras", "dirección", "aprobar"],
+          noHacer: [
+            { texto: "No cambiar a mano el estado de una orden que ya tiene autorizaciones: se borran y hay que autorizar de nuevo. Si hace falta, lo hace el <b>jefe de Compras</b>." },
+            { texto: "No autorizar una orden que no esté en estado <b>Por emitir</b>." }
+          ],
+          titulo: "Autorizaciones de O.C.",
+          tipo: "Procedimiento",
+          resumen: "Cuándo una orden de compra necesita autorización, quién la da y cómo se registra en el GEST.",
+          responsable: "Compras · Dirección",
+          sectores: ["Administración"],
+          cuando: "Cuando el total de la orden supera el límite de compra directa.",
+          reglas: [
+            "Hasta el límite definido por la empresa, el comprador emite directo.",
+            "Por encima del límite hace falta <b>autorización compuesta</b>: autoriza el jefe de Compras y además un director.",
+            "La autorización se hace solo con la orden en estado <b>Por emitir</b>.",
+            "Los límites y quién autoriza se configuran en <b>Servicios → Autorización órdenes a proveedor</b> (grupos y reglas)."
+          ],
+          pasos: [
+            { titulo: "Seleccionar la orden", texto: "En <b>Compras y Almacén → Ordenes de Compra</b>, marcá la orden o las órdenes a autorizar." },
+            { titulo: "Autorizar", texto: "Tocá <b>Autorización emisión</b>. En la columna <b>Autorizado</b> queda el usuario y la fecha.", img: "img/oc-12-autorizar.jpg" },
+            { titulo: "Si es compuesta, falta la segunda firma", texto: "La orden queda en espera hasta que autorice también la otra persona. Recién ahí se puede emitir." },
+            { titulo: "Dónde se configuran los límites", texto: "En <b>Servicios → Autorización órdenes a proveedor</b> se definen los grupos de usuarios y los valores mínimo y máximo de cada regla.", img: "img/oc-11-autorizacion-menu.jpg" }
+          ],
+          errores: [
+            { problema: "La orden perdió las autorizaciones que ya tenía.", solucion: "Alguien le cambió el estado a mano. Volver a ponerla en Por emitir y autorizarla de nuevo." }
+          ],
+          relacionados: ["emitir-orden-compra", "estados-orden-compra"],
+          fuente: "Págs. 119–121"
+        },
+        {
+          id: "estados-orden-compra",
+          tarea: "Entender los estados y cancelar una orden de compra",
+          ruta: "Compras y Almacén › Ordenes de Compra",
+          palabras: ["estado", "por emitir", "emitido", "tramitado", "cancelado", "cancelar", "anular", "situación órdenes de compra"],
+          noHacer: [
+            { texto: "No usar el estado <b>Confirmado</b>." },
+            { texto: "No cancelar una orden vacía: se <b>elimina</b> el documento." },
+            { texto: "No eliminar los requerimientos de una orden cancelada." }
+          ],
+          titulo: "Estados de O.C. y cancelación",
+          tipo: "Procedimiento",
+          resumen: "Qué significa cada estado de una orden de compra, qué se puede hacer en cada uno y cómo se cancela.",
+          responsable: "Compras",
+          sectores: ["Abastecimiento", "Administración"],
+          cuando: "Cada vez que se consulta o se cambia el estado de una orden.",
+          reglas: [
+            "<b>Por emitir:</b> el comprador la está armando o espera autorización. Se pueden cambiar cantidades, precios, fechas y forma de pago.",
+            "<b>Emitido:</b> impresa, autorizada y lista para enviar al proveedor. No se cambian las necesidades. Abastecimiento ya puede recibir contra ella.",
+            "<b>Tramitado parcial:</b> el proveedor entregó una parte; quedan líneas pendientes.",
+            "<b>Tramitado total:</b> el proveedor entregó todo.",
+            "<b>Cancelado:</b> la compra se cancela y las necesidades vuelven a quedar pendientes en la carpeta.",
+            "Para seguir entregas y demoras por proveedor: <b>Compras y Almacén → Situación órdenes de compra</b>."
+          ],
+          pasos: [
+            { titulo: "Abrir la orden", texto: "En <b>Compras y Almacén → Ordenes de Compra</b>, abrí la orden que hay que cancelar." },
+            { titulo: "Cambiar el estado", texto: "En el campo <b>Estado</b> elegí <b>Cancelado</b> y guardá." },
+            { titulo: "Verificar la carpeta", texto: "Las necesidades de la carpeta quedan otra vez pendientes, listas para una orden nueva." },
+            { titulo: "Avisar", texto: "Si la orden ya estaba emitida, avisar al proveedor y a Abastecimiento para que no reciban contra ella." }
+          ],
+          errores: [
+            { problema: "Una orden cancelada no aparece en Situación órdenes de compra.", solucion: "Se canceló vacía. Las órdenes vacías no se cancelan: se eliminan." }
+          ],
+          relacionados: ["emitir-orden-compra", "autorizar-orden-compra", "devolucion-proveedor"],
+          fuente: "Págs. 108, 118, 121"
+        }
+      ]
+    },
     { id: "almacen", titulo: "Almacén y stock", descripcion: "Reajuste de existencia, inventario, situación de almacén, etiquetas.", paginas: "97–145", guias: [] },
     { id: "produccion", titulo: "Producción", descripcion: "Entregas, inicio y fin de producción, horas hombre, retales.", paginas: "189–223", guias: [] },
     { id: "remitos", titulo: "Remitos Cascio", descripcion: "Justificantes, estados, configuración e impresión.", paginas: "161–165, 186–188, 301–307", guias: [] },

@@ -1,5 +1,11 @@
 # Cambios
 
+## 0.5 — 11/11/2026
+- Módulo nuevo **Órdenes de compra** (Compras), con 5 guías: revisar una carpeta antes de comprar, pedir cotizaciones, emitir una orden de compra, autorizarla, y estados y cancelación.
+- 11 capturas nuevas, con proveedores, clientes y nombres tapados.
+- Glosario: se suman "Cotización" (Propuesta de pedido) y "Elegir proveedor y precio" (Asociar proveedores).
+- El límite de autorización no se publica como importe: figura como "el límite definido por la empresa".
+
 ## 0.4 — 11/11/2026
 - Diseño nuevo: barra blanca con el logo de Cascio y cuerpo oscuro con acentos rojos.
 - Inicio pensado para no perderse: buscador grande, "Elegí tu sector" y lista de tareas que empiezan con un verbo.
