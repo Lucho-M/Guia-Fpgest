@@ -15,14 +15,16 @@
 
    CAMPOS DE UNA GUÍA
    id, titulo, tipo ("Procedimiento" = qué/quién/cuándo, "Instructivo" = cómo
-   se hace en el GEST), resumen, responsable, sectores (los que se ven
+   se hace en el GEST), tarea (cómo lo diría el usuario, empezando con un verbo),
+   ruta (dónde está en el GEST, igual que en pantalla), palabras (sinónimos para el
+   buscador), noHacer [{texto, img}], resumen, responsable, sectores (los que se ven
    afectados), cuando, reglas [], pasos [{titulo, texto, img}],
    errores [{problema, solucion}], relacionados [ids], fuente.
    ===================================================================== */
 
 window.GUIA_FPGEST = {
-  version: "0.2",
-  actualizado: "30/10/2026",
+  version: "0.4",
+  actualizado: "11/11/2026",
   autor: "",   // tu nombre, si querés que figure al pie
   fuente: "Implementación del ERP GEST (manual interno, 317 págs.)",
 
@@ -34,6 +36,11 @@ window.GUIA_FPGEST = {
        pedido: sector o persona que lo pidió (opcional) */
   propuestas: {
     direccion: "http://SERVIDOR:8080",
+    // Si la guía se publica en internet: pegar acá el enlace del formulario de Google.
+    // Con el enlace cargado, el botón "Proponer una mejora" abre el formulario (ya no usa el servidor).
+    formulario: "",
+    // Opcional: código del campo "Guía" del formulario (ej. "entry.123456789") para que llegue ya completo.
+    formularioCampoGuia: "",
     plan: [
       { titulo: "Videos en las guías", estado: "en-curso", detalle: "Ver el video del procedimiento desde cada guía, con acceso directo a cada paso." },
       { titulo: "Módulo Plantillas de importación", estado: "planificada", detalle: "Plantillas descargables, columnas obligatorias y errores típicos con su solución." },
@@ -41,6 +48,16 @@ window.GUIA_FPGEST = {
       { titulo: "Módulo Órdenes de compra", estado: "planificada", detalle: "Cotizaciones, generación, autorizaciones y cancelación." }
     ]
   },
+
+  /* GLOSARIO: cómo le decimos en la oficina / cómo figura en el GEST.
+     El buscador lo usa: quien busca "recepción" encuentra "Entregas Proveedores". */
+  glosario: [
+    { decimos: "Recepción", gest: "Entregas Proveedores", ruta: "Compras y Almacén › Entregas Proveedores" },
+    { decimos: "Carpeta", gest: "Pedido", ruta: "Home › Pedidos" },
+    { decimos: "Stock libre", gest: "No hay ningún contrato asociado", ruta: "Compras y Almacén › Situación de Almacén" },
+    { decimos: "Remito de salida", gest: "Remito Cascio", ruta: "Home › Documentos › Remito Cascio" },
+    { decimos: "Entregar material a producción", gest: "Operación de almacén SHIFT", ruta: "Compras y Almacén › Operaciones de Almacén › Añadir › SHIFT" }
+  ],
 
   sectores: ["Cómputos", "Órdenes de Fabricación", "Abastecimiento", "Compras", "Producción", "Despacho", "Administración"],
 
@@ -52,6 +69,10 @@ window.GUIA_FPGEST = {
       guias: [
         {
           id: "recepcion-materiales",
+          tarea: "Recibir material de un proveedor",
+          ruta: "Compras y Almacén › Entregas Proveedores › Añadir",
+          palabras: ["recepción", "recibir", "ingreso de material", "remito de proveedor", "entrada"],
+          noHacer: [{"texto": "No elegir <b>Factura proveedor</b> como tipo de documento. En la recepción va siempre <b>Remito proveedor</b>.", "img": "img/rec-07-no-factura.jpg"}, {"texto": "No recibir como servicio <b>RECUB</b> el material que llega ya pintado o anodizado y no salió de Cascio. Se recibe como el <b>artículo final</b>; si no, después no se puede asignar a las carpetas."}, {"texto": "No ingresar material sin orden de compra (salvo los casos de la guía de devoluciones)."}],
           titulo: "Recepción de materiales",
           tipo: "Instructivo",
           resumen: "Cómo ingresar al GEST el material que llega con remito del proveedor, tomando la orden de compra y cargándolo al almacén.",
@@ -59,9 +80,8 @@ window.GUIA_FPGEST = {
           sectores: ["Compras", "Órdenes de Fabricación", "Producción", "Administración"],
           cuando: "Cada vez que llega material con remito de proveedor. Hasta 48 h después del ingreso físico.",
           reglas: [
-            "El tipo de documento es siempre <b>Remito proveedor</b>. Nunca usar <b>Factura proveedor</b> en la recepción.",
-            "La recepción se hace contra la orden de compra emitida. No ingresar material sin O.C., salvo los casos de devolución (ver guía de devoluciones).",
-            "Si llega material ya procesado (pintado, anodizado) que no salió de Cascio, se recibe como el <b>artículo final</b>, no como el servicio RECUB. Si se recibe como RECUB después no se puede asignar a las carpetas.",
+            "El tipo de documento es siempre <b>Remito proveedor</b>.",
+            "La recepción se hace contra la orden de compra emitida.",
             "Si la necesidad no tiene almacén de destino, cargarlo a mano en la recepción y avisar a Compras para que lo configure en el artículo."
           ],
           pasos: [
@@ -83,6 +103,10 @@ window.GUIA_FPGEST = {
         },
         {
           id: "fecha-entrega",
+          tarea: "Cargar bien las fechas del remito",
+          ruta: "Compras y Almacén › Entregas Proveedores › Añadir",
+          palabras: ["fecha de entrega", "fecha del remito", "plazo", "día 5", "sello"],
+          noHacer: [],
           titulo: "Fechas en la recepción",
           tipo: "Procedimiento",
           resumen: "Qué fecha va en cada campo de la recepción y cuál es el plazo para cargar los remitos del mes.",
@@ -106,6 +130,10 @@ window.GUIA_FPGEST = {
         },
         {
           id: "rectificar-kg",
+          tarea: "Corregir los kilos de aluminio recibidos",
+          ruta: "Compras y Almacén › Entregas Proveedores › Añadir › Recoger pedidos de proveedores › Rectificar con el total de la cantidad entregada del proveedor › KG",
+          palabras: ["kilos", "peso real", "peso teórico", "aluminio", "perfiles", "diferencia de kg"],
+          noHacer: [],
           titulo: "Rectificar kg de aluminio",
           tipo: "Instructivo",
           resumen: "Cómo ajustar en la recepción los kilos reales que entrega el proveedor cuando difieren del peso teórico de la O.C.",
@@ -131,6 +159,10 @@ window.GUIA_FPGEST = {
         },
         {
           id: "niveles-aceptacion",
+          tarea: "Qué hacer si llega material de más",
+          ruta: "",
+          palabras: ["excedente", "sobrante", "de más", "10 %", "autorización", "depósito en desuso"],
+          noHacer: [{"texto": "No recibir más del 10 % por encima de lo pedido sin la autorización por correo del responsable de la O.C."}],
           titulo: "Excedentes en la recepción",
           tipo: "Procedimiento",
           resumen: "Qué hacer cuando el proveedor entrega más de lo pedido. Tope del 10 % y cómo se autoriza.",
@@ -156,6 +188,10 @@ window.GUIA_FPGEST = {
         },
         {
           id: "devolucion-proveedor",
+          tarea: "Devolver material a un proveedor",
+          ruta: "Home › Documentos › Remito Cascio › Añadir",
+          palabras: ["devolución", "devolver", "remito de salida", "material defectuoso", "rechazo", "reposición"],
+          noHacer: [{"texto": "No hacer el remito de devolución antes de que Compras desvincule las necesidades, si se va a comprar a otro proveedor."}],
           titulo: "Devolución a proveedor",
           tipo: "Instructivo",
           resumen: "Cómo devolver material defectuoso, equivocado o no pedido con un Remito Cascio, y cómo queda la necesidad para la reposición.",
