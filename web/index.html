@@ -88,6 +88,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .task::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--sec, transparent); }
 .task:hover { background: var(--raised); }
 .task b { font-size: 18px; font-weight: 600; }
+.num { display: inline-block; min-width: 2.6em; margin-right: 8px; font: 700 15px var(--font-display); color: var(--sec, var(--blue-hi)); letter-spacing: .02em; }
+.mod .num { min-width: 0; margin-right: 10px; color: var(--red); font-size: 19px; }
+.side-link .num { min-width: 2.4em; margin-right: 4px; font-size: 13px; color: var(--muted); }
+.side-link.on .num { color: var(--red); }
+.g-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.pn { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pn-b { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; min-width: 0; }
+.pn-b:hover { border-color: var(--blue-hi); }
+.pn-b.nx { text-align: right; grid-column: 2; }
+.pn-b small { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+.pn-b b { font-weight: 600; }
+@media (max-width: 560px) { .pn { grid-template-columns: 1fr; } .pn-b.nx { grid-column: 1; } }
 .task small { grid-column: 1; color: var(--muted); font-size: 14px; }
 .task .chip { grid-row: 1 / span 2; grid-column: 2; }
 .task .go { grid-row: 1 / span 2; grid-column: 3; font: 700 22px var(--font-display); color: var(--red); }
@@ -304,7 +316,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   const slug = s => strip(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
   const all = [];
-  D.modulos.forEach(m => m.guias.forEach(g => all.push(Object.assign({ modulo: m, noHacer: [], palabras: [], reglas: [], errores: [], relacionados: [], ruta: '' }, g))));
+  D.modulos.forEach((m, mi) => m.guias.forEach((g, gi) => all.push(Object.assign({ modulo: m, noHacer: [], palabras: [], reglas: [], errores: [], relacionados: [], ruta: '' }, g, { _n: (mi + 1) + '.' + (gi + 1) }))));
+  /* el orden de datos.js es el orden del proceso: módulo 1, 2, 3… y dentro de cada módulo paso 1, 2, 3… */
   const byId = Object.fromEntries(all.map(g => [g.id, g]));
   const sectorBySlug = Object.fromEntries(D.sectores.map(s => ['sector-' + slug(s), s]));
   const name = g => g.tarea || g.titulo;
@@ -329,7 +342,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   }
 
   /* ---------- piezas ---------- */
-  const taskRow = (g, i) => `<button class="task" type="button" data-go="${g.id}" style="--i:${i}${COL[secOf(g)] ? ';--sec:' + esc(COL[secOf(g)]) : ''}"><b>${esc(name(g))}</b><span class="chip ${g.tipo}">${g.tipo}</span><span class="go" aria-hidden="true">›</span><small>${esc(g.modulo.titulo)} · lo hace ${esc(g.responsable)}</small></button>`;
+  const taskRow = (g, i) => `<button class="task" type="button" data-go="${g.id}" style="--i:${i}${COL[secOf(g)] ? ';--sec:' + esc(COL[secOf(g)]) : ''}"><b><span class="num">${g._n}</span>${esc(name(g))}</b><span class="chip ${g.tipo}">${g.tipo}</span><span class="go" aria-hidden="true">›</span><small>${esc(g.modulo.titulo)} · lo hace ${esc(g.responsable)}</small></button>`;
   const taskList = (list, emptyMsg, quiet) => `<div class="tasks${quiet ? '' : ' cascade'}">${list.length ? list.map(taskRow).join('') : `<p class="empty">${emptyMsg}</p>`}</div>`;
   const pathHtml = r => `<div class="path">${r.split('›').map(x => `<span>${esc(x.trim())}</span>`).join('<i aria-hidden="true">›</i>')}</div>`;
   const backBar = crumbs => `<div class="back"><button class="btn ghost" type="button" data-back>← Volver</button><div class="crumbs">${crumbs}</div></div>`;
@@ -337,8 +350,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   const legend = `<div class="legend"><span><span class="chip Instructivo">Instructivo</span> &nbsp;cómo se hace en el sistema, paso a paso</span><span><span class="chip Procedimiento">Procedimiento</span> &nbsp;qué se hace, quién y cuándo</span></div>`;
   const propCallout = `<div class="callout"><div><b>¿Falta algo o hay algo mal?</b><p>Contanos qué necesitás ver o hacer en el GEST y lo sumamos en la próxima versión.</p></div><button class="btn" type="button" data-go="propuestas">Proponer una mejora</button></div>`;
   const modsHtml = () => D.modulos.map((m, i) => m.guias.length
-    ? `<button class="mod" type="button" data-go="m-${m.id}" style="--i:${Math.min(i, 8)}"><b>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg on">${m.guias.length} guías ›</span></button>`
-    : `<div class="mod off"><b>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg">En preparación</span></div>`).join('');
+    ? `<button class="mod" type="button" data-go="m-${m.id}" style="--i:${Math.min(i, 8)}"><b><span class="num">${i + 1}</span>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg on">${m.guias.length} guías ›</span></button>`
+    : `<div class="mod off"><b><span class="num">${i + 1}</span>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg">En preparación</span></div>`).join('');
 
   function setNav(key) {
     document.querySelectorAll('#topnav [data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === key));
@@ -361,8 +374,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
         <section><div class="sec-head"><h2>Elegí tu sector</h2><p>Te mostramos lo que hacés vos y lo que te afecta de otros sectores.</p></div>
           <div class="sectors cascade">${D.sectores.map((s, i) => { const n = all.filter(g => hace(g, s) || afecta(g, s)).length;
             return `<button class="sector-btn" type="button" data-go="sector-${slug(s)}" style="--i:${i}${COL[s] ? ';--sec:' + esc(COL[s]) : ''}"><b>${esc(s)}</b><small>${n ? n + (n === 1 ? ' guía' : ' guías') : 'Todavía sin guías'}</small></button>`; }).join('')}</div></section>
-        <section><div class="sec-head"><h2>Tareas</h2>${legend}</div>${taskList(all, 'Todavía no hay guías cargadas.')}</section>
-        <section><div class="sec-head"><h2>Módulos</h2></div><div class="mods cascade">${modsHtml()}</div></section>
+        <section><div class="sec-head"><h2>Tareas en orden del proceso</h2>${legend}</div>${taskList(all, 'Todavía no hay guías cargadas.')}</section>
+        <section><div class="sec-head"><h2>Módulos</h2><p>Numerados en el orden en que avanza una carpeta: de la compra al despacho.</p></div><div class="mods cascade">${modsHtml()}</div></section>
         ${propCallout}
       </div>`;
     setNav('inicio');
@@ -406,12 +419,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   function renderGuide(g) {
     const sibs = g.modulo.guias.map(x => byId[x.id]);
     const rel = g.relacionados.filter(id => byId[id]);
+    const k = all.indexOf(g), prev = all[k - 1], next = all[k + 1];
     const steps = g.pasos.map(p => `<li class="step"><h3>${esc(p.titulo)}</h3><p>${p.texto}</p>
       ${p.img ? `<button class="shot" type="button" data-img="${esc(p.img)}" aria-label="Ampliar la captura"><img src="${esc(p.img)}" alt="Pantalla del GEST: ${esc(p.titulo)}" loading="lazy"></button><span class="shot-cap">Tocá la imagen para agrandarla.</span>` : ''}</li>`).join('');
     view.innerHTML = `${backBar(crumbHome + '<span>/</span><button type="button" data-go="m-' + g.modulo.id + '">' + esc(g.modulo.titulo) + '</button>')}
       <div class="guide">
         <article class="g-main">
-          <div class="g-head"><span><span class="chip ${g.tipo}">${g.tipo}</span></span><h1>${esc(name(g))}</h1><hr class="redbar"><p class="lead">${esc(g.resumen)}</p></div>
+          <div class="g-head"><span class="g-meta"><span class="chip ${g.tipo}">${g.tipo}</span><span class="eyebrow">Paso ${g._n} · ${esc(g.modulo.titulo)}</span></span><h1>${esc(name(g))}</h1><hr class="redbar"><p class="lead">${esc(g.resumen)}</p></div>
           <dl class="facts">
             <div class="fact"><dt>Quién lo hace</dt><dd class="tags">${D.sectores.filter(s => g.responsable.includes(s)).map(s => `<span class="tag"${sec(s)}>${esc(s)}</span>`).join('') || esc(g.responsable)}</dd>${/[·(]/.test(g.responsable) ? `<dd class="hint">${esc(g.responsable)}</dd>` : ''}</div>
             <div class="fact"><dt>Cuándo</dt><dd>${esc(g.cuando)}</dd></div>
@@ -423,11 +437,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
           <section class="gsec"><h2>Pasos</h2><ol class="steps">${steps}</ol></section>
           ${g.errores.length ? `<section class="gsec"><h2>Si algo sale mal</h2><div class="errs">${g.errores.map(e => `<div class="err"><div class="q">${esc(e.problema)}</div><div class="a">${esc(e.solucion)}</div></div>`).join('')}</div></section>` : ''}
           ${rel.length ? `<section class="gsec"><h2>Guías relacionadas</h2><div class="related">${rel.map(id => `<button class="btn ghost" type="button" data-go="${id}">${esc(name(byId[id]))}</button>`).join('')}</div></section>` : ''}
+          <nav class="pn" aria-label="Paso anterior y siguiente">${prev ? `<button class="pn-b" type="button" data-go="${prev.id}"><small>← Paso anterior · ${prev._n}</small><b>${esc(name(prev))}</b></button>` : '<span></span>'}${next ? `<button class="pn-b nx" type="button" data-go="${next.id}"><small>Paso siguiente · ${next._n} →</small><b>${esc(name(next))}</b></button>` : ''}</nav>
           <div class="g-foot"><p class="source">También se llama «${esc(g.titulo)}» · Manual interno, ${esc(g.fuente)}</p>
             <button class="btn ghost" type="button" data-prop-guia="${g.id}">¿Algo para corregir? Proponer mejora</button></div>
         </article>
         <aside class="g-side" aria-label="Otras guías del módulo"><span class="eyebrow">${esc(g.modulo.titulo)}</span>
-          ${sibs.map(x => `<button class="side-link${x.id === g.id ? ' on' : ''}" type="button" data-go="${x.id}">${esc(name(x))}</button>`).join('')}</aside>
+          ${sibs.map(x => `<button class="side-link${x.id === g.id ? ' on' : ''}" type="button" data-go="${x.id}"><span class="num">${x._n}</span>${esc(name(x))}</button>`).join('')}</aside>
       </div>`;
     setNav('');
   }

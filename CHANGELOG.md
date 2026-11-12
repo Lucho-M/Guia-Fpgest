@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.7 — 12/11/2026
+- Módulo nuevo **Producción** (7 guías): entregar material a producción, iniciar la producción, cargar horas hombre, finalizar la producción, corregir un fin de producción mal hecho, devolver retales de aluminio y devolver sobrantes al pañol.
+- Módulo nuevo **Despacho y remitos** (4 guías): pasar productos terminados a Despacho (remito interno), emitir el remito a obra, anular un remito (método Validación → Anulado) y estados del remito.
+- La guía queda **ordenada por el proceso**: los módulos se numeran en el orden en que avanza una carpeta y cada tarea lleva su número (ej. 9.2). Cada guía tiene "Paso anterior / Paso siguiente".
+- 20 capturas nuevas con clientes, obras, importes y nombres tapados.
+- Glosario: Empezar a fabricar, Terminar la carpeta, Horas hombre, Pasar a despacho, Retales.
+- Inicio de producción: se sigue el Checklist de Producción (no tildar materiales en el inicio), que es más nuevo que el manual (pág. 196).
+
 ## 0.6 — 11/11/2026
 - Un color por sector (botones de sector, tareas y etiquetas). Se cambian en `datos.js` → `coloresSector`.
 - Transiciones: cada pantalla entra con movimiento, las listas aparecen en cascada y las tarjetas responden al pasar el mouse. Se desactivan solas si el equipo tiene "reducir movimiento".
