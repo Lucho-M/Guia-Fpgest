@@ -461,7 +461,7 @@ section h2 { font-size: 21px; margin-bottom: 12px; }
   async function renderBandeja() {
     view.innerHTML = `
       <div class="crumbs"><button type="button" data-go="">Inicio</button><span>/</span><button type="button" data-go="propuestas">Propuestas de mejora</button><span>/</span><span>Bandeja</span></div>
-      <div class="g-head"><h1>Bandeja de propuestas</h1><p class="lead">Todo lo que propusieron los usuarios. Cambiá el estado a medida que lo incorporás. El registro completo está en <span class="source">propuestas\\propuestas.csv</span> (se abre con Excel).</p></div>
+      <div class="g-head"><h1>Bandeja de propuestas</h1><p class="lead">Todo lo que propusieron los usuarios. Cambiá el estado a medida que lo incorporás. La base de datos SQLite se guarda en <span class="source">propuestas\\propuestas.sqlite3</span>; también se genera una exportación CSV para Excel.</p></div>
       <div class="panel" id="b-panel"><p class="empty">Cargando…</p></div>`;
     renderNav('propuestas');
     const panel = document.getElementById('b-panel');

@@ -1,21 +1,17 @@
 """
 Servidor de la Guía FPGEST
 --------------------------
-Sirve la guía en la red (http://NOMBRE-DEL-SERVIDOR:8080) y registra las
-propuestas de mejora en un CSV que se abre con Excel.
-
-Solo usa Python 3 (sin instalar nada más).
-
-Uso:
-    python servidor_guia.py                      # usa los valores de abajo
-    python servidor_guia.py --puerto 8080 --web "F:\\Emmegisoft\\FPGEST_DATA\\Guia_FPGEST"
+Sirve la guía en la red y registra propuestas en SQLite. También exporta
+propuestas.csv para que el registro pueda abrirse con Excel.
 """
 import argparse
 import csv
 import json
 import os
+import sqlite3
 import threading
 import uuid
+from contextlib import contextmanager
 from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -30,29 +26,79 @@ LIMITES = {"nombre": 80, "sector": 60, "tipo": 60, "guia": 120, "importancia": 4
 candado = threading.Lock()
 
 
-def ruta_csv(web):
+def rutas_datos(web):
     carpeta = os.path.join(web, "propuestas")
     os.makedirs(carpeta, exist_ok=True)
-    return os.path.join(carpeta, "propuestas.csv")
+    return os.path.join(carpeta, "propuestas.sqlite3"), os.path.join(carpeta, "propuestas.csv")
+
+
+def conectar(web):
+    db, _ = rutas_datos(web)
+    conn = sqlite3.connect(db, timeout=30)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("""CREATE TABLE IF NOT EXISTS propuestas (
+        id TEXT PRIMARY KEY,
+        fecha TEXT NOT NULL,
+        nombre TEXT NOT NULL DEFAULT '',
+        sector TEXT NOT NULL DEFAULT '',
+        tipo TEXT NOT NULL DEFAULT '',
+        guia TEXT NOT NULL DEFAULT '',
+        importancia TEXT NOT NULL DEFAULT '',
+        descripcion TEXT NOT NULL DEFAULT '',
+        estado TEXT NOT NULL DEFAULT 'Nueva',
+        nota TEXT NOT NULL DEFAULT '',
+        version_guia TEXT NOT NULL DEFAULT ''
+    )""")
+    importar_csv_si_vacia(conn, rutas_datos(web)[1])
+    return conn
+
+
+@contextmanager
+def sesion(web):
+    conn = conectar(web)
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def importar_csv_si_vacia(conn, csv_path):
+    if conn.execute("SELECT 1 FROM propuestas LIMIT 1").fetchone() or not os.path.exists(csv_path):
+        return
+    try:
+        with open(csv_path, encoding="utf-8-sig", newline="") as f:
+            filas = csv.DictReader(f, delimiter=";")
+            conn.executemany(
+                "INSERT OR IGNORE INTO propuestas (" + ",".join(CAMPOS) + ") VALUES (" + ",".join("?" for _ in CAMPOS) + ")",
+                [tuple(fila.get(campo, "") or "" for campo in CAMPOS) for fila in filas],
+            )
+        conn.commit()
+    except (OSError, csv.Error, sqlite3.Error):
+        conn.rollback()
+        raise
+
+
+def exportar_csv(web):
+    _, p = rutas_datos(web)
+    with sesion(web) as conn:
+        filas = conn.execute("SELECT " + ",".join(CAMPOS) + " FROM propuestas ORDER BY rowid").fetchall()
+    tmp = p + ".tmp"
+    with open(tmp, "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=CAMPOS, delimiter=";")
+        w.writeheader()
+        w.writerows(dict(fila) for fila in filas)
+    os.replace(tmp, p)
 
 
 def leer(web):
-    p = ruta_csv(web)
-    if not os.path.exists(p):
-        return []
-    with open(p, encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f, delimiter=";"))
-
-
-def escribir(web, filas):
-    p = ruta_csv(web)
-    tmp = p + ".tmp"
-    with open(tmp, "w", encoding="utf-8-sig", newline="") as f:  # utf-8-sig: Excel muestra bien los acentos
-        w = csv.DictWriter(f, fieldnames=CAMPOS, delimiter=";")
-        w.writeheader()
-        for fila in filas:
-            w.writerow({k: fila.get(k, "") for k in CAMPOS})
-    os.replace(tmp, p)
+    with sesion(web) as conn:
+        filas = conn.execute("SELECT " + ",".join(CAMPOS) + " FROM propuestas ORDER BY rowid").fetchall()
+    return [dict(fila) for fila in filas]
 
 
 def limpiar(datos, campo):
@@ -67,7 +113,7 @@ class Manejador(SimpleHTTPRequestHandler):
         super().__init__(*a, directory=self.web, **kw)
 
     def log_message(self, fmt, *args):
-        pass  # silencioso
+        pass
 
     def _json(self, codigo, obj):
         cuerpo = json.dumps(obj, ensure_ascii=False).encode("utf-8")
@@ -101,12 +147,11 @@ class Manejador(SimpleHTTPRequestHandler):
         if ruta == "/api/propuestas":
             if not limpiar(datos, "descripcion"):
                 return self._json(400, {"error": "Falta la descripción"})
-            fila = {k: limpiar(datos, k) for k in CAMPOS if k in LIMITES}
+            fila = {campo: limpiar(datos, campo) for campo in CAMPOS if campo in LIMITES}
             fila.update(id=uuid.uuid4().hex[:8], fecha=datetime.now().strftime("%d/%m/%Y %H:%M"), estado="Nueva")
-            with candado:
-                filas = leer(self.web)
-                filas.append(fila)
-                escribir(self.web, filas)
+            with candado, sesion(self.web) as conn:
+                conn.execute("INSERT INTO propuestas (" + ",".join(CAMPOS) + ") VALUES (" + ",".join("?" for _ in CAMPOS) + ")", tuple(fila.get(campo, "") for campo in CAMPOS))
+            exportar_csv(self.web)
             return self._json(201, {"ok": True, "propuesta": fila})
 
         if ruta.startswith("/api/propuestas/") and ruta.endswith("/estado"):
@@ -114,16 +159,16 @@ class Manejador(SimpleHTTPRequestHandler):
             estado = limpiar(datos, "estado")
             if estado not in ESTADOS:
                 return self._json(400, {"error": "Estado no válido"})
-            with candado:
-                filas = leer(self.web)
-                for f in filas:
-                    if f["id"] == pid:
-                        f["estado"] = estado
-                        if "nota" in datos:
-                            f["nota"] = limpiar(datos, "nota")
-                        escribir(self.web, filas)
-                        return self._json(200, {"ok": True, "propuesta": f})
-            return self._json(404, {"error": "No se encontró la propuesta"})
+            with candado, sesion(self.web) as conn:
+                actual = conn.execute("SELECT " + ",".join(CAMPOS) + " FROM propuestas WHERE id = ?", (pid,)).fetchone()
+                if actual is None:
+                    return self._json(404, {"error": "No se encontró la propuesta"})
+                nota = limpiar(datos, "nota") if "nota" in datos else actual["nota"]
+                conn.execute("UPDATE propuestas SET estado = ?, nota = ? WHERE id = ?", (estado, nota, pid))
+                fila = dict(actual)
+                fila.update(estado=estado, nota=nota)
+            exportar_csv(self.web)
+            return self._json(200, {"ok": True, "propuesta": fila})
 
         return self._json(404, {"error": "Ruta desconocida"})
 
@@ -134,10 +179,14 @@ def main():
     ap.add_argument("--puerto", type=int, default=PUERTO)
     a = ap.parse_args()
     Manejador.web = os.path.abspath(a.web)
-    ruta_csv(Manejador.web)
+    db, csv_path = rutas_datos(Manejador.web)
+    with sesion(Manejador.web):
+        pass
+    exportar_csv(Manejador.web)
     srv = ThreadingHTTPServer(("0.0.0.0", a.puerto), Manejador)
     print(f"Guía FPGEST en http://localhost:{a.puerto}  (carpeta: {Manejador.web})")
-    print(f"Propuestas en: {ruta_csv(Manejador.web)}")
+    print(f"Base de datos: {db}")
+    print(f"Exportación Excel: {csv_path}")
     srv.serve_forever()
 
 
