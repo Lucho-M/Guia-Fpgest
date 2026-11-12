@@ -351,7 +351,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   const propCallout = `<div class="callout"><div><b>¿Falta algo o hay algo mal?</b><p>Contanos qué necesitás ver o hacer en el GEST y lo sumamos en la próxima versión.</p></div><button class="btn" type="button" data-go="propuestas">Proponer una mejora</button></div>`;
   const modsHtml = () => D.modulos.map((m, i) => m.guias.length
     ? `<button class="mod" type="button" data-go="m-${m.id}" style="--i:${Math.min(i, 8)}"><b><span class="num">${i + 1}</span>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg on">${m.guias.length} guías ›</span></button>`
-    : `<div class="mod off"><b><span class="num">${i + 1}</span>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg">En preparación</span></div>`).join('');
+    : `<div class="mod off"><b><span class="num">${i + 1}</span>${esc(m.titulo)}</b><small>${esc(m.descripcion)}</small><span class="pg">Próximamente</span></div>`).join('');
 
   function setNav(key) {
     document.querySelectorAll('#topnav [data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === key));
@@ -402,7 +402,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   function renderModule(m) {
     view.innerHTML = `${backBar(crumbHome + '<span>/</span><span>' + esc(m.titulo) + '</span>')}
       <div class="g-head"><span class="eyebrow">Módulo</span><h1>${esc(m.titulo)}</h1><hr class="redbar"><p class="lead">${esc(m.descripcion)}</p></div>
-      ${taskList(m.guias.map(g => byId[g.id]), 'Este módulo está en preparación.')}`;
+      ${taskList(m.guias.map(g => byId[g.id]), 'Este módulo llega próximamente.')}`;
     setNav('');
   }
 
@@ -488,7 +488,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     }
     const guideOpts = D.modulos.map(m => m.guias.length
       ? `<optgroup label="${esc(m.titulo)}">${m.guias.map(g => `<option value="${esc(g.titulo)}"${pre.guia === g.id ? ' selected' : ''}>${esc(name(byId[g.id]))}</option>`).join('')}</optgroup>`
-      : `<option value="Módulo ${esc(m.titulo)}">Módulo ${esc(m.titulo)} (en preparación)</option>`).join('');
+      : `<option value="Módulo ${esc(m.titulo)}">Módulo ${esc(m.titulo)} (próximamente)</option>`).join('');
     view.innerHTML = `${propHead()}
       <form class="panel form" id="prop-form" novalidate>
         <div class="field full"><span class="lbl">Qué tipo de propuesta es</span>

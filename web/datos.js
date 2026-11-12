@@ -10,7 +10,7 @@
    3. Las capturas van en la carpeta img/ y se nombran en "img".
    4. Guardá y recargá la página (F5).
 
-   CÓMO ACTIVAR UN MÓDULO "EN PREPARACIÓN"
+   CÓMO ACTIVAR UN MÓDULO "PRÓXIMAMENTE"
    Agregale al menos una guía en "guias": deja de verse en gris solo.
 
    CAMPOS DE UNA GUÍA
