@@ -23,8 +23,8 @@
    ===================================================================== */
 
 window.GUIA_FPGEST = {
-  version: "0.7",
-  actualizado: "12/11/2026",
+  version: "0.8",
+  actualizado: "13/11/2026",
   autor: "",   // tu nombre, si querés que figure al pie
   fuente: "Implementación del ERP GEST (manual interno, 317 págs.)",
 
@@ -48,6 +48,7 @@ window.GUIA_FPGEST = {
       { titulo: "Módulo Órdenes de compra", estado: "hecha", detalle: "Revisar la carpeta, cotizar, emitir, autorizar y cancelar.", pedido: "Compras" },
       { titulo: "Módulos Producción y Despacho", estado: "hecha", detalle: "Entrega de material, inicio y fin de producción, horas hombre, retales, remito interno, remito a obra y anulación." },
       { titulo: "Guía ordenada por el proceso", estado: "hecha", detalle: "Módulos y tareas numerados en el orden en que avanza una carpeta, con paso anterior y siguiente." },
+      { titulo: "Módulos Carpetas OM y Carpetas indirectas", estado: "hecha", detalle: "Carga de OM, fechas de OM, tipos y códigos de carpetas indirectas, formulario y firmas, emisión y cierre." },
       { titulo: "Fletes y transporte en Compras", estado: "planificada", detalle: "Cómo imputar las horas de transporte a las carpetas." }
     ]
   },
@@ -62,6 +63,9 @@ window.GUIA_FPGEST = {
     { decimos: "Cotización", gest: "Propuesta de pedido", ruta: "Home › Pedidos › abrir la carpeta › Ordenes de Compra › Propuestas de pedido" },
     { decimos: "Elegir proveedor y precio", gest: "Asociar proveedores", ruta: "Home › Pedidos › abrir la carpeta › Necesidades › Asociar proveedores" },
     { decimos: "Entregar material a producción / Pasaje a producción", gest: "Preparación de materias primas", ruta: "" },
+    { decimos: "Pedido de insumos / herramientas / mantenimiento", gest: "Carpeta indirecta (tipo de pedido)", ruta: "Documentos › Aceptación total › Pedidos" },
+    { decimos: "Packing list", gest: "Lista de empaque", ruta: "" },
+    { decimos: "Cerrar la carpeta indirecta", gest: "Finalizada por validación", ruta: "" },
     { decimos: "Empezar a fabricar", gest: "Inicio producción", ruta: "Gestión Pedidos › Inicio producción" },
     { decimos: "Terminar la carpeta en el taller", gest: "Fin producción", ruta: "Home › Fin producción" },
     { decimos: "Horas hombre", gest: "Relaciones de Trabajo", ruta: "Planificación y Control › Relaciones de Trabajo" },
@@ -87,6 +91,203 @@ window.GUIA_FPGEST = {
     /* ---------- ORDEN DEL PROCESO: los módulos se muestran numerados en este orden ---------- */
     { id: "inicio", titulo: "Inicio y navegación", descripcion: "Acceso por escritorio remoto, empresas Cascio y Demo, módulos del sistema.", paginas: "19–20", guias: [] },
     { id: "carpetas", titulo: "Carpetas y estados", descripcion: "Tipos de carpetas, codificación, emisión y cambios de estado.", paginas: "6–19, 55–56", guias: [] },
+    {
+      id: "om",
+      titulo: "Carpetas OM",
+      descripcion: "Carga de carpetas OM que completan a la carpeta principal: lista de empaque, necesidades, anexos y plazos.",
+      paginas: "Instructivo paso a paso carga OM",
+      guias: [
+        {
+          id: "cargar-carpeta-om",
+          tarea: "Cargar una carpeta OM",
+          ruta: "",
+          palabras: ["om", "carpeta om", "lista de empaque", "packing list", "formulario om", "carpeta que completa"],
+          noHacer: [
+            { texto: "No cargar las necesidades para comprar antes de que exista la carpeta productiva: se cargan <b>únicamente una vez generada</b>." },
+            { texto: "No dejar la lista de empaque vacía. Si la OM no tiene nada para despachar, se carga el artículo <b>OM</b> (ver reglas)." }
+          ],
+          titulo: "Instructivo paso a paso carga OM",
+          tipo: "Instructivo",
+          resumen: "Cómo cargar en el GEST una carpeta OM desde el Formulario OM de Excel: lista de empaque, necesidades, anexos y plazo.",
+          responsable: "Órdenes de Fabricación",
+          sectores: ["Compras", "Producción", "Abastecimiento", "Despacho"],
+          cuando: "Cuando se aprueba una OM y hay que generar su carpeta para que Compras y Producción la ejecuten.",
+          reglas: [
+            "Código: el <b>N° de presupuesto</b> de la obra seguido de la OM (ej. <code>45021-…</code>).",
+            "Referencia: <b>nombre de la obra y n° de la carpeta a la que pertenece</b> la OM.",
+            "Si la carpeta no tiene artículos despachables, en la lista de empaque se carga: código <code>OM</code>, descripción «ESTE ARTICULO NO ES DESPACHABLE NO GENERAR INICIO NI FIN DE PRODUCCION», cantidad <code>1</code>.",
+            "Revisar unidades y datos técnicos de cada necesidad antes de importar.",
+            "El cambio de estado de la carpeta es lo que desbloquea la carga y la validación de los sectores siguientes."
+          ],
+          pasos: [
+            { titulo: "Crear la carpeta OM", texto: "Cargá el <b>código</b> (n° de presupuesto) y la <b>referencia</b> (obra y n° de carpeta a la que pertenece)." },
+            { titulo: "Cargar la lista de empaque", texto: "Importá la <b>lista de empaque</b> desde la hoja del <b>Formulario OM</b> de Excel. Si no hay nada despachable, cargá el artículo <code>OM</code> con cantidad 1." },
+            { titulo: "Cargar las necesidades", texto: "Importá las <b>necesidades del formulario</b>. Controlá códigos, unidades y datos técnicos." },
+            { titulo: "Anexar la lista de empaque", texto: "Generá el PDF de la lista de empaque y guardalo en los <b>Anexos</b> de la carpeta." },
+            { titulo: "Anexar las necesidades", texto: "Repetí lo mismo para generar y guardar el anexo de <b>necesidades</b>. Sumá planos y cortes si hacen falta." },
+            { titulo: "Cargar el plazo y cambiar el estado", texto: "Ingresá el <b>plazo de la OM</b> y cambiá el estado de la carpeta para habilitar a los sectores siguientes." },
+            { titulo: "Avisar", texto: "Informá por correo a <b>Compras</b>, <b>Producción</b> y los sectores que correspondan que la carpeta OM está cargada." }
+          ],
+          errores: [
+            { problema: "Producción no puede hacer inicio ni fin porque la OM no tiene productos.", solucion: "Es correcto si la OM no despacha nada: la lista de empaque lleva el artículo OM «no despachable». No se hace inicio ni fin de producción." },
+            { problema: "Compras ve necesidades duplicadas.", solucion: "Se cargaron necesidades para comprar antes de generar la carpeta productiva, o se importó dos veces. Borrar las repetidas y avisar a Compras." }
+          ],
+          relacionados: ["fechas-om", "emitir-carpeta-indirecta"],
+          fuente: "Instructivo paso a paso carga OM (28/8/2026) y Guía para la carga de carpetas OM"
+        },
+        {
+          id: "fechas-om",
+          tarea: "Entender las fechas y plazos de una OM",
+          ruta: "",
+          palabras: ["fechas om", "plazo om", "fecha de detección", "cierre administrativo", "plazo compras y abast", "plazo prod"],
+          noHacer: [{ texto: "No pisar la <b>Fecha 3º</b> sin dejar registro: si el plazo cambia, se ve en las columnas de plazo de cada sector." }],
+          titulo: "OM en FP-Gest: definiciones de fechas",
+          tipo: "Procedimiento",
+          resumen: "Qué significa cada una de las 4 fechas de una OM y dónde se ve un cambio de plazo.",
+          responsable: "Órdenes de Fabricación",
+          sectores: ["Compras", "Abastecimiento", "Producción", "Despacho"],
+          cuando: "Al cargar la OM y cada vez que cambia el plazo de cumplimiento.",
+          reglas: [
+            "<b>Fecha 1º</b> – Detección: cuando se pide el número de OM.",
+            "<b>Fecha 2º</b> – Cierre administrativo: cuando la OM está firmada por las partes.",
+            "<b>Fecha 3º</b> – Plazo para la solución.",
+            "<b>Fecha 4º</b> – Solución real (ej. fecha de despacho del material a obra).",
+            "Si la Fecha 3º cambia, la nueva fecha aparece en <b>Plazo Compras y Abast.</b>, <b>Plazo Prod.</b> u otra columna de plazo. Si no cambió, dice «No Aplica» o queda vacía."
+          ],
+          pasos: [],
+          errores: [],
+          relacionados: ["cargar-carpeta-om"],
+          fuente: "OM en FP-Gest"
+        }
+      ]
+    },
+    {
+      id: "indirectas",
+      titulo: "Carpetas indirectas",
+      descripcion: "Insumos, herramientas, mantenimiento, bienes de uso y semielaborados: cada sector emite sus propios pedidos.",
+      paginas: "Procedimiento e instructivos de pedidos indirectos",
+      guias: [
+        {
+          id: "tipos-carpeta-indirecta",
+          tarea: "Elegir el tipo y el código de una carpeta indirecta",
+          ruta: "",
+          palabras: ["tipos de pedido", "codificación", "centro de costo", "insumos", "herramientas", "mantenimiento", "bienes de uso", "semielaborados", "mejoras y ampliaciones", "equipamiento de grupos"],
+          noHacer: [{ texto: "No inventar códigos: siempre <b>centro de costo – tipo – identificador</b>. Un código mal armado rompe el seguimiento de la carpeta." }],
+          titulo: "Instructivo tipos de carpetas indirectas",
+          tipo: "Procedimiento",
+          resumen: "Qué tipo de pedido corresponde según el origen de la necesidad, y cómo se arman el código y la referencia.",
+          responsable: "Cada sector que pide",
+          todos: true,
+          sectores: ["Compras", "Administración"],
+          cuando: "Antes de emitir cualquier carpeta indirecta.",
+          reglas: [
+            "<b>Mantenimiento</b>: mantenimiento o reparación de máquinas o del edificio. Ej. <code>PUENTEGRUA-M-194</code>.",
+            "<b>Mejoras y Ampliaciones</b>: suma valor al inmueble. Ej. <code>4001-SHOWROOM</code>.",
+            "<b>Insumos</b>: elementos habituales de trabajo. Ej. <code>4000-INSUMOS-285</code>; de una obra: <code>&lt;n° obra&gt;-INSUMOS-1</code>; RR. HH. (indumentaria, librería, EPP): <code>2500-INSUMOS-164</code>; Seguridad e Higiene de obra: <code>&lt;n° obra&gt;-SH-191</code>.",
+            "<b>Herramientas</b>: herramientas de trabajo. Ej. <code>3500-HERRAMIENTAS-113</code>.",
+            "<b>Equipamiento de Grupos</b>: registro y seguimiento de herramientas de un grupo de trabajo. Ej. <code>EQP-XX-M</code>.",
+            "<b>Bienes de Uso para Comprar</b>: compra directa de un bien de uso. Ej. <code>IMPRESORA3D-CA01</code>.",
+            "<b>Bienes de Uso Fabric/Taller</b>: bien de uso que se fabrica en el taller. Ej. <code>MESASDECOMEDOR-T1</code>.",
+            "<b>Almacén Semielaborados</b>: stock de semielaborados para una o varias obras. Ej. <code>&lt;artículo&gt;-SM26-1</code>.",
+            "<b>Centros de costo</b>: Administración 2000 · RR. HH. 2500 · Ventas 3000 · Compras/Abastecimiento 3500 · Despacho 3500 · Producción 4000 · Ingeniería, O.F. y Desarrollo de Producto 4500 · Montaje 5500.",
+            "La <b>referencia</b> explica el destino: qué es, para qué sector u obra y el n° de carpeta. Ej. «Insumos de Producción, mechas y discos de corte carpeta N°285»."
+          ],
+          pasos: [],
+          errores: [
+            { problema: "No sé si es Insumos o Herramientas.", solucion: "Insumos = se consume (discos, mechas, EPP, librería). Herramientas = se usa y vuelve (amoladora, calibre). Si es para un grupo de trabajo, Equipamiento de Grupos." }
+          ],
+          relacionados: ["pedir-materiales-indirectos", "emitir-carpeta-indirecta"],
+          fuente: "Instructivo emisión de carpetas indirectas y Guía para la carga de pedidos indirectos"
+        },
+        {
+          id: "pedir-materiales-indirectos",
+          tarea: "Pedir materiales indirectos (formulario y firmas)",
+          ruta: "",
+          palabras: ["formulario de pedido", "pedido por excel", "firma jefe de compras", "pedido de servicio", "insumos y herramientas"],
+          noHacer: [{ texto: "No cargar en el GEST un pedido sin la firma del <b>jefe de sector</b> y la aprobación del <b>jefe de Compras</b>." }],
+          titulo: "Procedimiento emisión de pedidos indirectos",
+          tipo: "Procedimiento",
+          resumen: "Quién pide, quién aprueba y cada cuánto se emiten los pedidos indirectos.",
+          responsable: "Cada sector que pide · Compras aprueba",
+          todos: true,
+          sectores: ["Compras", "Abastecimiento", "Administración"],
+          cuando: "Dos emisiones por semana por sector, o una por mes para aprovisionamiento. Los urgentes, fuera de fecha con validación del jefe de Compras.",
+          reglas: [
+            "Cada sector define 1 o 2 usuarios que emiten sus pedidos en el GEST.",
+            "El formulario Excel (<b>PEDIDO DE SERVICIOS, INSUMO Y HERRAMIENTAS</b>) lleva presupuesto, obra, plazo, quién lo pide, sector, y por renglón código, descripción, cantidad, unidad y para qué se usa.",
+            "Firma: jefe del sector. Aprobación: jefe de Compras.",
+            "Administración supervisa la carga y acompaña a los sectores durante la implementación."
+          ],
+          pasos: [
+            { titulo: "Completar el formulario", texto: "Llená el formulario Excel con artículos, cantidades y para qué se van a usar. Usá las hojas de artículos del mismo formulario para buscar el código." },
+            { titulo: "Firmas", texto: "Hacelo firmar por el jefe del sector y aprobar por el jefe de Compras." },
+            { titulo: "Emitir en el GEST", texto: "Con el formulario firmado, emití la carpeta (ver «Emitir una carpeta indirecta en el GEST»)." }
+          ],
+          errores: [],
+          relacionados: ["tipos-carpeta-indirecta", "emitir-carpeta-indirecta"],
+          fuente: "Procedimiento emisión de pedidos indirectos; Implementación pedidos indirectos; Flujo emisión de carpetas indirectas"
+        },
+        {
+          id: "emitir-carpeta-indirecta",
+          tarea: "Emitir una carpeta indirecta en el GEST",
+          ruta: "Documentos › crear el documento › Aceptación total › Pedidos",
+          palabras: ["emitir pedido indirecto", "cargar carpeta de insumos", "importar excel", "asignación de stock", "semana de emisión", "semana de cumplimiento"],
+          noHacer: [
+            { texto: "No importar el Excel dos veces: <b>cada importación hace una carga nueva</b> de necesidades." },
+            { texto: "No importar sin verificar antes que <b>todos los códigos existan</b> en el GEST." }
+          ],
+          titulo: "Instructivo rápido: emitir un pedido indirecto",
+          tipo: "Instructivo",
+          resumen: "Cómo crear la carpeta del pedido indirecto, cargar sus necesidades, adjuntar los PDF y avisar.",
+          responsable: "Cada sector que pide",
+          todos: true,
+          sectores: ["Compras", "Abastecimiento", "Administración"],
+          cuando: "Con el formulario Excel ya firmado y aprobado.",
+          reglas: [
+            "El documento se crea con su <b>centro de costo</b>; con la <b>aceptación total</b> se genera el pedido.",
+            "La carpeta aparece sola en la solapa <b>Pedidos</b>, en estado <b>Nueva</b>.",
+            "El cambio a <b>Asignación de stock</b> habilita la carga de necesidades y a los sectores siguientes."
+          ],
+          pasos: [
+            { titulo: "Crear el documento", texto: "En <b>Documentos</b> creá el pedido del tipo que corresponde (insumos, herramientas, mantenimiento…) con su centro de costo." },
+            { titulo: "Código y referencia", texto: "Completá el <b>código</b> (centro de costo – tipo – identificador) y la <b>referencia</b> con el destino de los materiales." },
+            { titulo: "Aceptar el pedido", texto: "Hacé la <b>aceptación total</b>. La carpeta aparece en <b>Pedidos</b> en estado <b>Nueva</b>." },
+            { titulo: "Estado y semanas", texto: "Cambiá el estado a <b>Asignación de stock</b> y cargá la <b>semana de emisión</b> y la <b>semana de cumplimiento</b>." },
+            { titulo: "Importar las necesidades", texto: "Verificá que todos los códigos existan e importá la hoja <b>Necesidades</b> del Excel (código, descripción, cantidad, n° de serie, medidas)." },
+            { titulo: "Adjuntar documentación", texto: "En los anexos: <b>PDF del pedido firmado</b>, <b>PDF de necesidades</b> cargadas y planos u otros documentos si corresponde." },
+            { titulo: "Avisar", texto: "Mandá un correo con <b>código</b>, <b>referencia</b> y <b>tipo de pedido</b> informando la nueva carpeta." }
+          ],
+          errores: [
+            { problema: "Un código del Excel no existe en el GEST.", solucion: "No importar. Buscarlo en la hoja «Lista de Articulos» del formulario o pedir el alta del artículo a Compras, y después importar." },
+            { problema: "Se importó el Excel dos veces.", solucion: "Borrar las necesidades duplicadas antes de que Compras las tome." }
+          ],
+          relacionados: ["tipos-carpeta-indirecta", "pedir-materiales-indirectos", "cerrar-carpeta-indirecta"],
+          fuente: "Instructivo rápido y Checklist de control de carpetas indirectas; Guía para la carga de pedidos indirectos"
+        },
+        {
+          id: "cerrar-carpeta-indirecta",
+          tarea: "Cerrar una carpeta indirecta",
+          ruta: "",
+          palabras: ["cerrar pedido indirecto", "finalizada por validación", "cierre de carpeta"],
+          noHacer: [{ texto: "No cerrar la carpeta si queda material por entregar o la tarea no terminó." }],
+          titulo: "Finalización del pedido indirecto",
+          tipo: "Procedimiento",
+          resumen: "Cuándo y cómo se da por terminado un pedido indirecto.",
+          responsable: "Cada sector que pide",
+          todos: true,
+          sectores: ["Compras", "Administración"],
+          cuando: "Cuando se entregaron todos los materiales y terminó la tarea pedida.",
+          reglas: [
+            "Se cierra cambiando el estado a <b>Finalizada por validación</b>.",
+            "El cierre lo hace el sector que pidió; Compras puede ser consultado y Administración supervisa."
+          ],
+          pasos: [],
+          errores: [],
+          relacionados: ["emitir-carpeta-indirecta"],
+          fuente: "Procedimiento emisión de pedidos indirectos, punto 5"
+        }
+      ]
+    },
     { id: "articulos", titulo: "Artículos y variantes", descripcion: "Proveedores, variantes, fórmulas, lista de componentes.", paginas: "58–81", guias: [] },
     { id: "asignaciones", titulo: "Asignación de stock", descripcion: "Asignación, reasignación, carpetas de acopio -0, desplacado.", paginas: "36–54", guias: [] },
     {

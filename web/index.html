@@ -324,7 +324,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   const COL = D.coloresSector || {};
   const sec = s => COL[s] ? ` style="--sec:${esc(COL[s])}"` : '';
   const secOf = g => D.sectores.find(s => g.responsable.includes(s)) || '';
-  const hace = (g, s) => g.responsable.includes(s);
+  const hace = (g, s) => g.todos || g.responsable.includes(s); /* todos: true = la hace cualquier sector (ej. carpetas indirectas) */
   const afecta = (g, s) => g.sectores.includes(s);
 
   $('foot').innerHTML = `Guía FPGEST · versión ${esc(D.version)} · actualizada el ${esc(D.actualizado)}` + (D.autor ? ` · ${esc(D.autor)}` : '') + `<br>Fuente: ${esc(D.fuente)}`;

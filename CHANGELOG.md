@@ -1,5 +1,12 @@
 # Cambios
 
+## 0.8 — 13/11/2026
+- Módulo nuevo **Carpetas OM** (2 guías): cargar una carpeta OM (lista de empaque, necesidades, anexos, plazo y aviso) y las 4 fechas de una OM.
+- Módulo nuevo **Carpetas indirectas** (4 guías): tipos y códigos (con centros de costo), formulario y firmas, emitir la carpeta en el GEST y cerrarla.
+- Las guías de carpetas indirectas aparecen en "Lo que hacés vos" de **todos** los sectores (campo `todos: true` en `datos.js`).
+- Glosario: Pedido de insumos/herramientas/mantenimiento, Packing list (Lista de empaque), Cerrar la carpeta indirecta (Finalizada por validación).
+- Sin capturas por ahora: los PDF de OM e indirectas del proyecto no permiten extraer las imágenes.
+
 ## 0.7.1 — 13/11/2026
 - La entrega de material a producción («pasaje a producción») se hace con **Preparación de materias primas**, no con SHIFT. Se agrega al glosario.
 - Se sacan las capturas de SHIFT de esa guía; el paso a paso queda en actualización hasta tener las capturas nuevas.

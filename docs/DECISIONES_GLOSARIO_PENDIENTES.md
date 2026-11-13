@@ -37,3 +37,6 @@ La versión viva (editable, con estados) está en: https://claude.ai/artifact/Pw
 | Confirmar quién importa las horas hombre | Revisión | Por revisar | El manual dice Producción; confirmar con RR. HH. y Administración. |
 | Capturas y pasos de Preparación de materias primas | Tarea | Por hacer | Lucho pasa las capturas (o el video) para armar el paso a paso de la entrega a producción. |
 | Definir en qué casos se usa SHIFT | Decisión | Por confirmar | Lucho confirma los casos. Hoy la guía de devolver sobrantes al pañol usa SHIFT (manual págs. 221–223). |
+| Capturas de carga OM y carpetas indirectas | Tarea | Por hacer | Adjuntar en el chat el PDF «Instructivo paso a paso carga OM» y capturas de la carga de indirectas para recortarlas y taparlas. |
+| Confirmar quién carga las carpetas OM | Revisión | Por revisar | La guía dice Órdenes de Fabricación. |
+| Confirmar la ruta exacta de creación de carpetas indirectas | Revisión | Por revisar | La guía dice Documentos › Aceptación total › Pedidos. |
