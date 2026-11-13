@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.7.1 — 13/11/2026
+- La entrega de material a producción («pasaje a producción») se hace con **Preparación de materias primas**, no con SHIFT. Se agrega al glosario.
+- Se sacan las capturas de SHIFT de esa guía; el paso a paso queda en actualización hasta tener las capturas nuevas.
+- Los módulos sin guías dicen «Próximamente».
+
 ## 0.7 — 12/11/2026
 - Módulo nuevo **Producción** (7 guías): entregar material a producción, iniciar la producción, cargar horas hombre, finalizar la producción, corregir un fin de producción mal hecho, devolver retales de aluminio y devolver sobrantes al pañol.
 - Módulo nuevo **Despacho y remitos** (4 guías): pasar productos terminados a Despacho (remito interno), emitir el remito a obra, anular un remito (método Validación → Anulado) y estados del remito.

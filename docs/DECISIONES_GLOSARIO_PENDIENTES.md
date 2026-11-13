@@ -35,3 +35,5 @@ La versión viva (editable, con estados) está en: https://claude.ai/artifact/Pw
 | Validar con Producción: en el inicio no se tildan materiales | Revisión | Por revisar | El manual (pág. 196) dice tildar el material disponible; el Checklist de Producción (más nuevo) dice no tildar. La guía usa el checklist. |
 | Validar el paso "Tomar Almacén" del Remito Cascio | Revisión | Por revisar | Sale de la pág. 302 del manual; confirmar con Despacho si se usa Tomar Almacén o Tomar Documento. |
 | Confirmar quién importa las horas hombre | Revisión | Por revisar | El manual dice Producción; confirmar con RR. HH. y Administración. |
+| Capturas y pasos de Preparación de materias primas | Tarea | Por hacer | Lucho pasa las capturas (o el video) para armar el paso a paso de la entrega a producción. |
+| Definir en qué casos se usa SHIFT | Decisión | Por confirmar | Lucho confirma los casos. Hoy la guía de devolver sobrantes al pañol usa SHIFT (manual págs. 221–223). |

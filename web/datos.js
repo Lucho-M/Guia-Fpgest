@@ -61,7 +61,7 @@ window.GUIA_FPGEST = {
     { decimos: "Remito de salida", gest: "Remito Cascio", ruta: "Home › Documentos › Remito Cascio" },
     { decimos: "Cotización", gest: "Propuesta de pedido", ruta: "Home › Pedidos › abrir la carpeta › Ordenes de Compra › Propuestas de pedido" },
     { decimos: "Elegir proveedor y precio", gest: "Asociar proveedores", ruta: "Home › Pedidos › abrir la carpeta › Necesidades › Asociar proveedores" },
-    { decimos: "Entregar material a producción", gest: "Operación de almacén SHIFT", ruta: "Compras y Almacén › Operaciones de Almacén › Añadir › SHIFT" },
+    { decimos: "Entregar material a producción / Pasaje a producción", gest: "Preparación de materias primas", ruta: "" },
     { decimos: "Empezar a fabricar", gest: "Inicio producción", ruta: "Gestión Pedidos › Inicio producción" },
     { decimos: "Terminar la carpeta en el taller", gest: "Fin producción", ruta: "Home › Fin producción" },
     { decimos: "Horas hombre", gest: "Relaciones de Trabajo", ruta: "Planificación y Control › Relaciones de Trabajo" },
@@ -432,25 +432,26 @@ window.GUIA_FPGEST = {
         {
           id: "entregar-material-produccion",
           tarea: "Entregar material a producción",
-          ruta: "Compras y Almacén › Operaciones de Almacén › Añadir › SHIFT",
-          palabras: ["entrega a producción", "shift", "pasar material al taller", "depósito de producción", "005", "movimiento de almacén"],
-          noHacer: [{ texto: "No entregar material tomado de <b>No hay ningún contrato asociado</b> (stock libre). Pasa al depósito de producción pero sigue figurando como libre y el stock queda mal. Primero se asigna a la carpeta." }],
-          titulo: "Entregas a producción manual",
+          ruta: "",
+          palabras: ["entrega a producción", "pasaje a producción", "preparación de materias primas", "pasar material al taller", "depósito de producción", "005"],
+          noHacer: [
+            { texto: "No entregar material tomado de <b>No hay ningún contrato asociado</b> (stock libre). Pasa al depósito de producción pero sigue figurando como libre y el stock queda mal. Primero se asigna a la carpeta." },
+            { texto: "No usar <b>SHIFT</b> para la entrega habitual a producción: SHIFT queda para otros casos puntuales." }
+          ],
+          titulo: "Preparación de materias primas",
           tipo: "Instructivo",
-          resumen: "Cómo pasar en el GEST el material de una carpeta desde los depósitos de Abastecimiento al Depósito de Producción.",
+          resumen: "Cómo pasar en el GEST el material de una carpeta desde los depósitos de Abastecimiento al Depósito de Producción, con la herramienta Preparación de materias primas.",
           responsable: "Abastecimiento",
           sectores: ["Producción", "Compras"],
           cuando: "Cuando Producción pide el material de una carpeta (todo junto o por etapas, según el espacio que tenga el taller).",
           reglas: [
-            "Todo material que se entrega tiene que estar <b>asignado a la carpeta</b> antes del movimiento.",
-            "El almacén de destino es siempre <b>005 - Deposito de produccion</b>.",
+            "En el GEST la entrega a producción (el «pasaje a producción») se hace con <b>Preparación de materias primas</b>.",
+            "Todo material que se entrega tiene que estar <b>asignado a la carpeta</b> antes de prepararlo.",
+            "El material entregado queda en <b>005 - Deposito de produccion</b>.",
             "Si el taller no tiene lugar seguro para todo el material, la entrega se hace escalonada: Producción avisa a Abastecimiento lo que necesita en cada etapa."
           ],
           pasos: [
-            { titulo: "Crear la operación SHIFT", texto: "En <b>Compras y Almacén</b> elegí <b>Operaciones de Almacén</b>, tocá <b>Añadir</b> y marcá el tipo de operación <b>SHIFT</b>. Después volvé a tocar <b>Añadir</b> para sumar ítems.", img: "img/pro-01-shift.jpg" },
-            { titulo: "Elegir las necesidades de la carpeta", texto: "Filtrá por la carpeta (columna <b>Pedido</b>), tildá cada ítem en <b>Checked</b> y escribí la <b>Cantidad para sacar</b>. Tocá <b>Importar</b>.", img: "img/pro-02-necesidades.jpg" },
-            { titulo: "Elegir el almacén de destino", texto: "En los datos de destino, en <b>Almacén de destino</b>, activá el filtro y elegí <b>005 - Deposito de produccion</b>. Guardá y salí.", img: "img/pro-03-destino.jpg" },
-            { titulo: "Verificar y guardar", texto: "Revisá que las cantidades y el destino estén bien y tocá <b>Guardar</b>." }
+            { titulo: "Paso a paso en actualización", texto: "Estamos cargando las capturas de <b>Preparación de materias primas</b>. Mientras tanto, consultá con el administrador del GEST antes de hacer la entrega." }
           ],
           errores: [
             { problema: "El material está en el depósito de producción pero sigue apareciendo como stock libre.", solucion: "Se entregó desde «No hay ningún contrato asociado». Asignarlo a la carpeta (guía de asignación de stock) y avisar a Producción antes de iniciar o finalizar la producción." },
